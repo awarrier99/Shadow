@@ -1,8 +1,8 @@
 #ifndef FYE_TOKEN_H
 #define FYE_TOKEN_H
 
-
 #include <vector>
+
 
 enum TokenType {
     NUMBER,
@@ -31,16 +31,7 @@ public:
     Symbol* symbol;
 };
 
-class TokenList {
-public:
-    int size();
-    void add(Token* token);
-    Token* get(int i);
-
-private:
-    std::vector<Token*> list;
-    int _size;
-};
+class TokenList : public std::vector<Token*> {};
 
 
 #endif //FYE_TOKEN_H
