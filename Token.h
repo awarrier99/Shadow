@@ -9,20 +9,36 @@ enum TokenType {
     STRING,
     IDENT,
     OP,
-    SEP
+    SEP,
+    INVALID
+};
+
+class Symbol {
+public:
+    explicit Symbol(void* data);
+
+    void* data;
 };
 
 class Token {
+public:
+    Token(TokenType type, int length, int line, int column, Symbol symbol);
+
     TokenType type;
     int length;
+    int line;
+    int column;
+    Symbol symbol {nullptr};
 };
 
 class TokenList {
 public:
     int size();
+    void add(Token* token);
+    Token* get(int i);
 
 private:
-    std::vector<Token> list;
+    std::vector<Token*> list;
     int _size;
 };
 
