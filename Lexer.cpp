@@ -26,7 +26,7 @@ Token* Lexer::extract_token(std::string* line, int* i) {
     TokenType type = get_type(ch);
     switch(type) {
         case NUMBER:
-            token = Lexer::extract_number(line, i, ch);
+            token = Lexer::extract_number(line, i, ch, *i - 1);
             break;
         case IDENT:
             break;
@@ -43,8 +43,8 @@ Token* Lexer::extract_token(std::string* line, int* i) {
     return token;
 }
 
-Token* Lexer::extract_number(std::string* line, int* i, char first) { // TODO: support floats
-    std::string num_str = std::string(1, first);
+Token* Lexer::extract_number(std::string* line, int* i, char first_ch, int first_i) { // TODO: support floats
+    std::string num_str = std::string(1, first_ch);
     char ch = (*line)[*i];
     while (get_type(ch) == NUMBER) {
         num_str += ch;
@@ -52,12 +52,10 @@ Token* Lexer::extract_number(std::string* line, int* i, char first) { // TODO: s
         ch = (*line)[*i];
     }
 
-    int num = std::stoi(num_str);
-    std::cout << "hello" << std::endl;
-    Symbol sym = Symbol(reinterpret_cast<void *>(num));
-    std::cout << "hello2" << std::endl;
-    std::cout << "Data: " << *((int*) sym.data) << std::endl;
-    Token* token = new Token(NUMBER, 32, 0, *i, sym);
+    int* num = new int;
+    *num = std::stoi(num_str);
+    Symbol* sym = new Symbol((void*) num);
+    Token* token = new Token(NUMBER, 32, 0, first_i, sym); // TODO: implement line number
 
     return token;
 }

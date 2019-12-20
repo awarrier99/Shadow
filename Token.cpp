@@ -13,7 +13,7 @@ Token* TokenList::get(int i) {
     return this->list[i];
 }
 
-Token::Token(TokenType type, int length, int line, int column, Symbol symbol) {
+Token::Token(TokenType type, int length, int line, int column, Symbol* symbol) {
     this->type = type;
     this->length = length;
     this->line = line;

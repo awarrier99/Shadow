@@ -13,7 +13,7 @@ public:
 private:
     static TokenList* lex_line(std::string* line);
     static Token* extract_token(std::string* line, int* i);
-    static Token* extract_number(std::string* line, int* i, char first);
+    static Token* extract_number(std::string* line, int* i, char first_ch, int first_i);
 };
 
 TokenType get_type(char ch);

@@ -22,13 +22,13 @@ public:
 
 class Token {
 public:
-    Token(TokenType type, int length, int line, int column, Symbol symbol);
+    Token(TokenType type, int length, int line, int column, Symbol* symbol);
 
     TokenType type;
     int length;
     int line;
     int column;
-    Symbol symbol {nullptr};
+    Symbol* symbol;
 };
 
 class TokenList {
