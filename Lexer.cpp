@@ -40,7 +40,7 @@ Token* Lexer::extract_token(std::string* line, int* i) {
             token = Lexer::extract_op(line, i, ch, *i - 1);
             break;
         case SEP:
-            token = Lexer::extra_sep(line, i, ch, *i - 1);
+            token = Lexer::extract_sep(line, i, ch, *i - 1);
             break;
         case INVALID:
             break;
@@ -60,7 +60,7 @@ Token* Lexer::extract_op(std::string *line, int *i, char first_ch, int first_i) 
     return new Token(OP, 0, 0, first_i, sym);
 }
 
-Token* Lexer::extra_sep(std::string *line, int *i, char first_ch, int first_i) {
+Token* Lexer::extract_sep(std::string *line, int *i, char first_ch, int first_i) {
     auto* sep = new std::string(1, first_ch);
     char ch = (*line)[*i];
     if (get_type(ch) == SEP) {

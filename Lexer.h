@@ -16,7 +16,7 @@ private:
     static Token* extract_number(std::string* line, int* i, char first_ch, int first_i);
     static Token* extract_ident(std::string* line, int*i, char first_ch, int first_i);
     static Token* extract_op(std::string* line, int* i, char first_ch, int first_i);
-    static Token* extra_sep(std::string* line, int* i, char first_ch, int first_i);
+    static Token* extract_sep(std::string* line, int* i, char first_ch, int first_i);
 
 };
 
