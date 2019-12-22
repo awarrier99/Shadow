@@ -4,7 +4,8 @@
 
 int main() {
     std::string source = "hello 123 world";
-    std::vector<TokenList*>* all_token_lists = Lexer::lex(&source);
+    std::string sourcetest = "1 yuh";
+    std::vector<TokenList*>* all_token_lists = Lexer::lex(&sourcetest);
     TokenList* token_list = (*all_token_lists)[0];
     for (Token* token: *token_list) { // test
         switch(token->type) {

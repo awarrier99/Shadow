@@ -7,6 +7,7 @@ std::vector<TokenList*>* Lexer::lex(std::string* source) {
     return new std::vector<TokenList*> { lex_line(source) };
 }
 
+//adds the token to the end of TokenList
 TokenList* Lexer::lex_line(std::string* line) {
     auto* token_list = new TokenList {};
     int i = 0;
@@ -16,7 +17,7 @@ TokenList* Lexer::lex_line(std::string* line) {
 
     return token_list;
 }
-
+//extract token by line number excluding white space and new lines
 Token* Lexer::extract_token(std::string* line, int* i) {
     char ch = (*line)[*i];
     while (ch == ' ' || ch == '\n' || ch == '\t') {
