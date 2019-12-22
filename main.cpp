@@ -1,11 +1,20 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include "Lexer.h"
 
-int main() {
-    std::string source = "str = \"hello world\";"
-                         "num = 123 + 456;"
-                         "~";
+int main(int argc, char** argv) {
+    if (argc != 2) {
+        std::cerr << "A source file must be provided!" << std::endl;
+        return 1;
+    }
+    char* source_file = argv[1];
+    std::ifstream file(source_file);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string source = buffer.str(); // TODO: read incrementally rather than storing entire contents in memory
+
     std::vector<TokenList*>* all_token_lists = Lexer::lex(&source);
     for (TokenList* token_list: *all_token_lists) {
         for (Token* token: *token_list) { // test
