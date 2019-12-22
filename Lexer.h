@@ -8,7 +8,7 @@
 
 class Lexer {
 public:
-    static std::vector<TokenList*>* lex(std::string* source);
+    static TokenList* lex(std::string* source);
 
 private:
     static TokenList* lex_line(std::string* line, int line_num, int* i);

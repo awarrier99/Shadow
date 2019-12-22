@@ -2,22 +2,23 @@
 #include "Lexer.h"
 
 
-std::vector<TokenList*>* Lexer::lex(std::string* source) {
-    auto* all_token_lists = new std::vector<TokenList*>();
+TokenList* Lexer::lex(std::string* source) {
+    auto* token_list = new TokenList();
     TokenType type = IDENT; // arbitrary, just so it's not invalid
-    int i = 0, line_num = 0;
+    int i = 0, line_num = 1;
     while (i < source->length() && type != INVALID) {
-        TokenList* token_list = lex_line(source, line_num, &i);
-        all_token_lists->push_back(token_list);
-        type = token_list->back()->type;
+        TokenList* line_list = lex_line(source, line_num, &i);
+        token_list->insert(token_list->end(), line_list->begin(), line_list->end());
+        type = line_list->back()->type;
+        delete line_list;
         line_num++;
     }
 
-    return all_token_lists;
+    return token_list;
 }
 
 TokenList* Lexer::lex_line(std::string* line, int line_num, int* i) {
-    auto* token_list = new TokenList {};
+    auto* token_list = new TokenList();
     int j = 0;
     while (true) {
         Token* token = Lexer::extract_token(line, line_num, *i, &j);
