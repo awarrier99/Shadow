@@ -51,22 +51,15 @@ Token* Lexer::extract_token(std::string* line, int* i) {
 
 Token* Lexer::extract_op(char first_ch, int first_i) {
     auto* ops = new std::string;
-    char ch = first_ch;
-    if (get_type(ch) == OP) {
-        *ops = ch;
-    }
+    *ops = first_ch;
 
     auto* sym = new Symbol((void*) ops);
     return new Token(OP, 0, 0, first_i, sym);
 }
 
 Token* Lexer::extract_sep(char first_ch, int first_i) {
-    auto* sep = new std::string;
-    char ch = first_ch;
-    if (get_type(ch) == SEP) {
-        *sep = ch;
-    }
-
+    auto* sep = new char;
+    *sep = first_ch;
     auto* sym = new Symbol((void*) sep);
     return new Token(SEP, 0, 0, first_i, sym);
 }

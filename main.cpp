@@ -24,7 +24,7 @@ int main() {
                 break;
             case SEP:
                 std::cout << "Type: " << token->type << " Length: " << token->length << " Line: " << token->line << " Column: " <<
-                          token->column << " Symbol: " <<  *((std::string*) token->symbol->data) << std::endl;
+                          token->column << " Symbol: " <<  *((char*) token->symbol->data) << std::endl;
                 break;
             case INVALID:
                 break;
