@@ -1,113 +1,127 @@
+#include <iostream>
 #include "Lexer.h"
 
 
 std::vector<TokenList*>* Lexer::lex(std::string* source) {
-//    std::string line;
-    return new std::vector<TokenList*> { lex_line(source) };
+    auto* all_token_lists = new std::vector<TokenList*>();
+    TokenType type = IDENT; // arbitrary, just so it's not invalid
+    int i = 0, line_num = 0;
+    while (i < source->length() && type != INVALID) {
+        TokenList* token_list = lex_line(source, line_num, &i);
+        all_token_lists->push_back(token_list);
+        type = token_list->back()->type;
+        line_num++;
+    }
+
+    return all_token_lists;
 }
 
-TokenList* Lexer::lex_line(std::string* line) {
+TokenList* Lexer::lex_line(std::string* line, int line_num, int* i) {
     auto* token_list = new TokenList {};
-    TokenType type = IDENT; // arbitrary, just so it's not invalid
-    int i = 0;
-    while (i < line->length() && type != INVALID) {
-        Token* token = Lexer::extract_token(line, &i);
+    int j = 0;
+    while (true) {
+        Token* token = Lexer::extract_token(line, line_num, *i, &j);
         token_list->push_back(token);
-        type = token->type;
+        if (token->type == INVALID) break;
+        if (token->type == SEP && *((char*) token->symbol->data) == ';') break;
     }
+    *i += j;
 
     return token_list;
 }
 
-Token* Lexer::extract_token(std::string* line, int* i) {
-    char ch = (*line)[*i];
+Token* Lexer::extract_token(std::string* line, int line_num, int i, int* j) {
+    char ch = (*line)[i + *j];
     while (ch == ' ' || ch == '\n' || ch == '\t') {
-        (*i)++;
-        ch = (*line)[*i];
+        (*j)++;
+        ch = (*line)[i + *j];
     }
-    (*i)++;
+    int col = *j;
+    (*j)++;
 
     Token* token;
     TokenType type = get_type(ch);
     switch(type) {
         case NUMBER:
-            token = Lexer::extract_number(line, i, ch, *i - 1);
+            token = Lexer::extract_number(line, i, j, ch);
             break;
         case STRING:
-            token = Lexer::extract_string(line, i, *i - 1);
+            token = Lexer::extract_string(line, i, j);
             break;
         case IDENT:
-            token = Lexer::extract_ident(line, i, ch, *i - 1);
+            token = Lexer::extract_ident(line, i, j, ch);
             break;
         case OP:
-            token = Lexer::extract_op(ch, *i - 1);
+            token = Lexer::extract_op(ch);
             break;
         case SEP:
-            token = Lexer::extract_sep(ch, *i - 1);
+            token = Lexer::extract_sep(ch);
             break;
         default:
-            token = new Token(INVALID, 0, 0, *i - 1, nullptr);
+            token = new Token(INVALID, 0, nullptr);
             break;
     }
+    token->line = line_num;
+    token->column = col;
 
     return token;
 }
 
-Token* Lexer::extract_number(std::string* line, int* i, char first_ch, int first_i) { // TODO: support floats
+Token* Lexer::extract_number(std::string* line, int i, int* j, char first_ch) { // TODO: support floats
     std::string num_str = std::string(1, first_ch);
-    char ch = (*line)[*i];
+    char ch = (*line)[i + *j];
     while (get_type(ch) == NUMBER) {
         num_str += ch;
-        (*i)++;
-        ch = (*line)[*i];
+        (*j)++;
+        ch = (*line)[i + *j];
     }
 
     auto* num = new int;
     *num = std::stoi(num_str);
     auto* sym = new Symbol((void*) num);
-    return new Token(NUMBER, 32, 0, first_i, sym); // TODO: implement line number
+    return new Token(NUMBER, 32, sym);
 }
 
-Token* Lexer::extract_string(std::string* line, int* i, int first_i) {
+Token* Lexer::extract_string(std::string* line, int i, int* j) {
     auto* str = new std::string;
-    char ch = (*line)[*i];
+    char ch = (*line)[i + *j];
     while (get_type(ch) != STRING) { // TODO: support escape chars
         *str += ch;
-        (*i)++;
-        ch = (*line)[*i];
+        (*j)++;
+        ch = (*line)[i + *j];
     }
-    (*i)++; // so we don't recheck the end quote
+    (*j)++; // so we don't recheck the end quote
 
     auto* sym = new Symbol((void*) str);
-    return new Token(STRING, 0, 0, first_i, sym);
+    return new Token(STRING, 0, sym);
 }
 
-Token* Lexer::extract_ident(std::string* line, int* i, char first_ch, int first_i) {
+Token* Lexer::extract_ident(std::string* line, int i, int* j, char first_ch) {
     auto* ident = new std::string(1, first_ch);
-    char ch = (*line)[*i];
+    char ch = (*line)[i + *j];
     while (get_type(ch) == IDENT) {
         *ident += ch;
-        (*i)++;
-        ch = (*line)[*i];
+        (*j)++;
+        ch = (*line)[i + *j];
     }
 
     auto* sym = new Symbol((void*) ident);
-    return new Token(IDENT, 0, 0, first_i, sym);
+    return new Token(IDENT, 0, sym);
 }
 
-Token* Lexer::extract_op(char first_ch, int first_i) {
+Token* Lexer::extract_op(char first_ch) {
     auto* ops = new std::string(1, first_ch);
 
     auto* sym = new Symbol((void*) ops);
-    return new Token(OP, 0, 0, first_i, sym);
+    return new Token(OP, 0, sym);
 }
 
-Token* Lexer::extract_sep(char first_ch, int first_i) {
+Token* Lexer::extract_sep(char first_ch) {
     auto* sep = new char;
     *sep = first_ch;
 
     auto* sym = new Symbol((void*) sep);
-    return new Token(SEP, 0, 0, first_i, sym);
+    return new Token(SEP, 0, sym);
 }
 
 TokenType get_type(char ch) {

@@ -11,14 +11,13 @@ public:
     static std::vector<TokenList*>* lex(std::string* source);
 
 private:
-    static TokenList* lex_line(std::string* line);
-    static Token* extract_token(std::string* line, int* i);
-    static Token* extract_number(std::string* line, int* i, char first_ch, int first_i);
-    static Token* extract_string(std::string* line, int* i, int first_i);
-    static Token* extract_ident(std::string* line, int*i, char first_ch, int first_i);
-    static Token* extract_op(char first_ch, int first_i);
-    static Token* extract_sep(char first_ch, int first_i);
-
+    static TokenList* lex_line(std::string* line, int line_num, int* i);
+    static Token* extract_token(std::string* line, int line_num, int i, int* j);
+    static Token* extract_number(std::string* line, int i, int* j, char first_ch);
+    static Token* extract_string(std::string* line, int i, int* j);
+    static Token* extract_ident(std::string* line, int i, int* j, char first_ch);
+    static Token* extract_op(char first_ch);
+    static Token* extract_sep(char first_ch);
 };
 
 TokenType get_type(char ch);
