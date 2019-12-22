@@ -3,9 +3,8 @@
 #include "Lexer.h"
 
 int main() {
-    std::string source = "hello 123 world";
-    std::string sourcetest = "1 yuh";
-    std::vector<TokenList*>* all_token_lists = Lexer::lex(&sourcetest);
+    std::string source = "hello + (123) world;";
+    std::vector<TokenList*>* all_token_lists = Lexer::lex(&source);
     TokenList* token_list = (*all_token_lists)[0];
     for (Token* token: *token_list) { // test
         switch(token->type) {
@@ -20,8 +19,12 @@ int main() {
                           token->column << " Symbol: " <<  *((std::string*) token->symbol->data) << std::endl;
                 break;
             case OP:
+                std::cout << "Type: " << token->type << " Length: " << token->length << " Line: " << token->line << " Column: " <<
+                          token->column << " Symbol: " <<  *((std::string*) token->symbol->data) << std::endl;
                 break;
             case SEP:
+                std::cout << "Type: " << token->type << " Length: " << token->length << " Line: " << token->line << " Column: " <<
+                          token->column << " Symbol: " <<  *((std::string*) token->symbol->data) << std::endl;
                 break;
             case INVALID:
                 break;
