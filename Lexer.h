@@ -10,6 +10,7 @@ class Lexer {
 public:
     static TokenList* lex(std::string* source);
 
+
 private:
     static TokenList* lex_line(std::string* line, int line_num, int* i);
     static Token* extract_token(std::string* line, int line_num, int i, int* j);
