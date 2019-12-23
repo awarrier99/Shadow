@@ -1,7 +1,3 @@
-//
-// Created by Pratik Nallamotu on 12/22/19.
-//
-
 #ifndef FYE_PARSER_H
 #define FYE_PARSER_H
 
