@@ -20,12 +20,18 @@ public:
 
 class ParseTree : public std::map<int, Token> {};
 
-//class node {
-//public:
-//    int data;
-//    class node* left;
-//    class node* right;
-//};
+class ASTNode {
+public:
+    int data;
+    ASTNode* left;
+    ASTNode* right;
+
+    ASTNode() {
+        data = 0;
+        left = NULL;
+        right = NULL;
+    }
+};
 
 
 
