@@ -5,13 +5,14 @@
 
 Token* Parser::get_token(TokenList* token_list) {
 //    Token* tok = token_list->at(2);
-    int num;
+    string num;
     std::string ops;
 
     for (Token* token: *token_list) { // test
         switch(token->type) {
             case NUMBER:
-                num = *(int*)token->symbol->data;
+                num = std::to_string(*(int*)token->symbol->data);
+                ASTNode* node = ASTNode().CreateNode(num, node->left, node->right);
                 std::cout <<num<< std::endl;
                 break;
             case STRING: //temporarily commenting out will come back after numbers

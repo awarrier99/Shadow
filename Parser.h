@@ -22,7 +22,7 @@ class ParseTree : public std::map<int, Token> {};
 
 class ASTNode {
 public:
-    void* data;
+    std::string* data;
     ASTNode* left;
     ASTNode* right;
 
@@ -32,7 +32,7 @@ public:
         right = NULL;
     }
 
-    ASTNode* CreateNode(void* data, ASTNode*left, ASTNode* right) {
+    ASTNode* CreateNode(std::string* data, ASTNode*left, ASTNode* right) {
         ASTNode* node = new ASTNode();
         node->data = data;
         node->left = left;
