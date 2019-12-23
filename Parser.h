@@ -13,12 +13,12 @@
 class Parser {
 
 //want to pass in a token list
-private:
-
+public:
+    static Token* get_token(TokenList& token_list);
 
 };
 
-class ParseTree : public std::map<TokenType*, Token->symbol> {};
+class ParseTree : public std::map<int, Token> {};
 
 //class node {
 //public:
