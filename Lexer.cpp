@@ -59,7 +59,7 @@ Token* Lexer::extract_token(std::string* line, int line_num, int i, int* j) {
             token = Lexer::extract_sep(ch);
             break;
         default:
-            token = new Token(INVALID, 0, nullptr);
+            token = new Token(INVALID, nullptr);
             break;
     }
     token->line = line_num;
@@ -80,7 +80,7 @@ Token* Lexer::extract_number(std::string* line, int i, int* j, char first_ch) { 
     auto* num = new int;
     *num = std::stoi(num_str);
     auto* sym = new Symbol((void*) num);
-    return new Token(NUMBER, 32, sym);
+    return new Token(NUMBER, sym);
 }
 
 Token* Lexer::extract_string(std::string* line, int i, int* j) {
@@ -94,7 +94,7 @@ Token* Lexer::extract_string(std::string* line, int i, int* j) {
     (*j)++; // so we don't recheck the end quote
 
     auto* sym = new Symbol((void*) str);
-    return new Token(STRING, 0, sym);
+    return new Token(STRING, sym);
 }
 
 Token* Lexer::extract_ident(std::string* line, int i, int* j, char first_ch) {
@@ -107,14 +107,14 @@ Token* Lexer::extract_ident(std::string* line, int i, int* j, char first_ch) {
     }
 
     auto* sym = new Symbol((void*) ident);
-    return new Token(IDENT, 0, sym);
+    return new Token(IDENT, sym);
 }
 
 Token* Lexer::extract_op(char first_ch) {
     auto* ops = new std::string(1, first_ch);
 
     auto* sym = new Symbol((void*) ops);
-    return new Token(OP, 0, sym);
+    return new Token(OP, sym);
 }
 
 Token* Lexer::extract_sep(char first_ch) {
@@ -122,7 +122,7 @@ Token* Lexer::extract_sep(char first_ch) {
     *sep = first_ch;
 
     auto* sym = new Symbol((void*) sep);
-    return new Token(SEP, 0, sym);
+    return new Token(SEP, sym);
 }
 
 TokenType get_type(char ch) {

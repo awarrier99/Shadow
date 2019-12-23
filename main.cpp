@@ -19,23 +19,23 @@ int main(int argc, char** argv) {
     for (Token* token: *token_list) { // test
         switch(token->type) {
             case NUMBER:
-                std::cout << "Type: NUMBER" << " Length: " << token->length << " Line: " << token->line <<
+                std::cout << "Type: NUMBER" << " Line: " << token->line <<
                     " Column: " << token->column << " Symbol: " << *((int*) token->symbol->data) << std::endl;
                 break;
             case STRING:
-                std::cout << "Type: STRING" << " Length: " << token->length << " Line: " << token->line <<
+                std::cout << "Type: STRING" << " Line: " << token->line <<
                     " Column: " << token->column << " Symbol: " << *((std::string*) token->symbol->data) << std::endl;
                 break;
             case IDENT:
-                std::cout << "Type: IDENT" << " Length: " << token->length << " Line: " << token->line <<
+                std::cout << "Type: IDENT" << " Line: " << token->line <<
                     " Column: " << token->column << " Symbol: " << *((std::string*) token->symbol->data) << std::endl;
                 break;
             case OP:
-                std::cout << "Type: OP" << " Length: " << token->length << " Line: " << token->line <<
+                std::cout << "Type: OP" << " Line: " << token->line <<
                     " Column: " << token->column << " Symbol: " << *((std::string*) token->symbol->data) << std::endl;
                 break;
             case SEP:
-                std::cout << "Type: SEP" << " Length: " << token->length << " Line: " << token->line <<
+                std::cout << "Type: SEP" << " Line: " << token->line <<
                     " Column: " << token->column << " Symbol: " << *((char*) token->symbol->data) << std::endl;
                 break;
             case INVALID:
