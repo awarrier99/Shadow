@@ -17,8 +17,8 @@ int main(int argc, char** argv) {
     std::string source = buffer.str(); // TODO: read incrementally rather than storing entire contents in memory
 
     TokenList* token_list = Lexer::lex(&source);
-    Token* tok = Parser::get_token((TokenList&) token_list);
-    std::cout << "Tok " << tok  << std::endl;
+    Token* tok = Parser::get_token(token_list);
+//    std::cout << "Tok " << &tok  << std::endl;
 
     for (Token* token: *token_list) { // test
         switch(token->type) {

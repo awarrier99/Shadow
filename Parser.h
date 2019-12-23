@@ -14,7 +14,7 @@ class Parser {
 
 //want to pass in a token list
 public:
-    static Token* get_token(TokenList& token_list);
+    static Token* get_token(TokenList* token_list);
 
 };
 
