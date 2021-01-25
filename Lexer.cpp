@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Lexer.h"
 
 
@@ -127,8 +126,8 @@ Token* Lexer::extract_sep(char first_ch) {
 
 TokenType get_type(char ch) {
 //    int extra_ident_codes[] = {}; TODO: allow for non alpha characters in identifier
-    //%,*,+,-,<,=,>
-    int op_codes[] = {37, 42, 43, 45, 60, 61, 62}; // TODO: add more operators, allow for += and other combos
+    //%,*,+,-,/,<,=,>
+    int op_codes[] = {37, 42, 43, 45, 47, 60, 61, 62}; // TODO: add more operators, allow for += and other combos
     int code = (int) ch;
     if (code >= 48 && code <= 57) return NUMBER;
     if (code == 34) return STRING;

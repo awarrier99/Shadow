@@ -4,44 +4,32 @@
 
 #include <vector>
 #include <string>
+#include <stack>
 #include <map>
 #include "Token.h"
-#include "Lexer.h"
 
-//should have the token list, and each tokens type and symbol
-//
-class Parser {
-
-//want to pass in a token list
-public:
-    static Token* get_token(TokenList* token_list);
-
-};
-
-class ParseTree : public std::map<int, Token> {};
 
 class ASTNode {
 public:
-    void* data;
+    Token* token;
     ASTNode* left;
     ASTNode* right;
 
-    ASTNode() {
-        data = 0;
-        left = NULL;
-        right = NULL;
-    }
-
-    ASTNode* CreateNode(void* data, ASTNode*left, ASTNode* right) {
-        ASTNode* node = new ASTNode();
-        node->data = data;
-        node->left = left;
-        node->right = right;
-    }
+    explicit ASTNode(Token* token);
+    ASTNode(Token* token, ASTNode* left, ASTNode* right);
 };
 
+class AST {
+public:
+    ASTNode* root;
+};
 
+class Parser {
+public:
+    static AST* build_ast(TokenList* token_list);
 
+    static std::map<char, int> precedence;
+};
 
 
 
