@@ -1,12 +1,11 @@
 #ifndef FYE_INTERPRETER_H
 #define FYE_INTERPRETER_H
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include "Lexer.h"
 #include "Parser.h"
+#include "util.h"
 
 
 class Interpreter {

@@ -2,7 +2,6 @@
 #define FYE_PARSER_H
 
 
-#include <vector>
 #include <string>
 #include <stack>
 #include <map>
@@ -30,7 +29,6 @@ public:
 
     static std::map<char, int> precedence;
 };
-
 
 
 #endif //FYE_PARSER_H

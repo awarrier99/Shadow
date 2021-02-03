@@ -1,6 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <string>
 #include "Interpreter.h"
 
 int main(int argc, char** argv) {

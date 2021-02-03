@@ -33,6 +33,4 @@ public:
 class TokenList : public std::vector<Token*> {};
 
 
-
-
 #endif //FYE_TOKEN_H
