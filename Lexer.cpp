@@ -1,55 +1,40 @@
 #include "Lexer.h"
 
 
-TokenList* Lexer::lex(std::string* source) {
+TokenList* Lexer::lex_instruction() {
     auto* token_list = new TokenList();
-    TokenType type = IDENT; // arbitrary, just so it's not invalid
-    int i = 0, line_num = 1;
-    while (i < source->length() && type != INVALID) {
-        TokenList* line_list = lex_line(source, line_num, &i);
-        token_list->insert(token_list->end(), line_list->begin(), line_list->end());
-        type = line_list->back()->type;
-        delete line_list;
-        line_num++;
-    }
-
-    return token_list;
-}
-
-TokenList* Lexer::lex_line(std::string* line, int line_num, int* i) {
-    auto* token_list = new TokenList();
-    int j = 0;
+    this->offset = 0;
     while (true) {
-        Token* token = Lexer::extract_token(line, line_num, *i, &j);
+        Token* token = Lexer::extract_token();
         token_list->push_back(token);
         if (token->type == INVALID) break;
         if (token->type == SEP && *((char*) token->symbol->data) == ';') break;
     }
-    *i += j;
+    this->cursor += this->offset;
 
     return token_list;
 }
 
-Token* Lexer::extract_token(std::string* line, int line_num, int i, int* j) {
-    char ch = (*line)[i + *j];
+Token* Lexer::extract_token() {
+    char ch = (*this->instruction)[this->offset];
     while (ch == ' ' || ch == '\n' || ch == '\t') {
-        (*j)++;
-        ch = (*line)[i + *j];
+        this->offset++;
+        ch = (*this->instruction)[this->offset];
     }
-    int col = *j;
-    (*j)++;
+    int col = this->cursor + this->offset;
+    this->offset++;
 
     Token* token;
     TokenType type = get_type(ch);
     switch(type) {
         case NUMBER:
-            token = Lexer::extract_number(line, i, j, ch);
+            token = Lexer::extract_number(ch);
             break;
         case STRING:
-            token = Lexer::extract_string(line, i, j);
+            token = Lexer::extract_string();
             break;
         case IDENT:
-            token = Lexer::extract_ident(line, i, j, ch);
+            token = Lexer::extract_ident(ch);
             break;
         case OP:
             token = Lexer::extract_op(ch);
@@ -61,19 +46,19 @@ Token* Lexer::extract_token(std::string* line, int line_num, int i, int* j) {
             token = new Token(INVALID, nullptr);
             break;
     }
-    token->line = line_num;
+    token->line = this->line_num;
     token->column = col;
 
     return token;
 }
 
-Token* Lexer::extract_number(std::string* line, int i, int* j, char first_ch) { // TODO: support floats
+Token* Lexer::extract_number(char first_ch) { // TODO: support floats
     std::string num_str = std::string(1, first_ch);
-    char ch = (*line)[i + *j];
+    char ch = (*this->instruction)[this->offset];
     while (get_type(ch) == NUMBER) {
         num_str += ch;
-        (*j)++;
-        ch = (*line)[i + *j];
+        this->offset++;
+        ch = (*this->instruction)[this->offset];
     }
 
     auto* num = new int;
@@ -82,27 +67,27 @@ Token* Lexer::extract_number(std::string* line, int i, int* j, char first_ch) { 
     return new Token(NUMBER, sym);
 }
 
-Token* Lexer::extract_string(std::string* line, int i, int* j) {
+Token* Lexer::extract_string() {
     auto* str = new std::string;
-    char ch = (*line)[i + *j];
+    char ch = (*this->instruction)[this->offset];
     while (get_type(ch) != STRING) { // TODO: support escape chars
         *str += ch;
-        (*j)++;
-        ch = (*line)[i + *j];
+        this->offset++;
+        ch = (*this->instruction)[this->offset];
     }
-    (*j)++; // so we don't recheck the end quote
+    this->offset++; // so we don't recheck the end quote
 
     auto* sym = new Symbol((void*) str);
     return new Token(STRING, sym);
 }
 
-Token* Lexer::extract_ident(std::string* line, int i, int* j, char first_ch) {
+Token* Lexer::extract_ident(char first_ch) {
     auto* ident = new std::string(1, first_ch);
-    char ch = (*line)[i + *j];
+    char ch = (*this->instruction)[this->offset];
     while (get_type(ch) == IDENT) {
         *ident += ch;
-        (*j)++;
-        ch = (*line)[i + *j];
+        this->offset++;
+        ch = (*this->instruction)[this->offset];
     }
 
     auto* sym = new Symbol((void*) ident);
