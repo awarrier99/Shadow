@@ -8,7 +8,7 @@ TokenList* Lexer::lex_instruction() {
         Token* token = Lexer::extract_token();
         token_list->push_back(token);
         if (token->type == INVALID) break;
-        if (token->type == SEP && *((char*) token->symbol->data) == ';') break;
+        if (token->type == SEP && ((Sep*) token->symbol->data)->value == ';') break;
     }
     this->cursor += this->offset;
 
@@ -61,52 +61,43 @@ Token* Lexer::extract_number(char first_ch) { // TODO: support floats
         ch = (*this->instruction)[this->offset];
     }
 
-    auto* num = new int;
-    *num = std::stoi(num_str);
-    auto* sym = new Symbol((void*) num);
-    return new Token(NUMBER, sym);
+    int num = std::stoi(num_str);
+    return new Token(NUMBER, new Symbol(new Integer(num)));
 }
 
 Token* Lexer::extract_string() {
-    auto* str = new std::string;
+    std::string str;
     char ch = (*this->instruction)[this->offset];
     while (get_type(ch) != STRING) { // TODO: support escape chars
-        *str += ch;
+        str += ch;
         this->offset++;
         ch = (*this->instruction)[this->offset];
     }
     this->offset++; // so we don't recheck the end quote
 
-    auto* sym = new Symbol((void*) str);
-    return new Token(STRING, sym);
+    return new Token(STRING, new Symbol(new String(str)));
 }
 
 Token* Lexer::extract_ident(char first_ch) {
-    auto* ident = new std::string(1, first_ch);
+    std::string ident(1, first_ch);
     char ch = (*this->instruction)[this->offset];
     while (get_type(ch) == IDENT) {
-        *ident += ch;
+        ident += ch;
         this->offset++;
         ch = (*this->instruction)[this->offset];
     }
 
-    auto* sym = new Symbol((void*) ident);
-    return new Token(IDENT, sym);
+    return new Token(IDENT, new Symbol(new Ident(ident)));
 }
 
 Token* Lexer::extract_op(char first_ch) {
-    auto* ops = new std::string(1, first_ch);
+    std::string op(1, first_ch);
 
-    auto* sym = new Symbol((void*) ops);
-    return new Token(OP, sym);
+    return new Token(OP, new Symbol(new Op(op)));
 }
 
 Token* Lexer::extract_sep(char first_ch) {
-    auto* sep = new char;
-    *sep = first_ch;
-
-    auto* sym = new Symbol((void*) sep);
-    return new Token(SEP, sym);
+    return new Token(SEP, new Symbol(new Sep(first_ch)));
 }
 
 TokenType get_type(char ch) {

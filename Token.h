@@ -2,6 +2,9 @@
 #define FYE_TOKEN_H
 
 #include <vector>
+#include <string>
+#include <iostream>
+#include "Symbol.h"
 
 
 enum TokenType {
@@ -13,16 +16,10 @@ enum TokenType {
     INVALID
 };
 
-class Symbol {
-public:
-    explicit Symbol(void* data);
-
-    void* data;
-};
-
 class Token {
 public:
     Token(TokenType type, Symbol* symbol);
+//    ~Token();
 
     TokenType type;
     int line;
@@ -30,7 +27,10 @@ public:
     Symbol* symbol;
 };
 
-class TokenList : public std::vector<Token*> {};
+class TokenList : public std::vector<Token*> {
+public:
+    ~TokenList();
+};
 
 
 #endif //FYE_TOKEN_H

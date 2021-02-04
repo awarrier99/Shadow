@@ -1,33 +1,18 @@
 #ifndef FYE_PARSER_H
 #define FYE_PARSER_H
 
-
 #include <string>
 #include <stack>
 #include <map>
-#include "Token.h"
+#include "AST.h"
+#include "util.h"
 
-
-class ASTNode {
-public:
-    Token* token;
-    ASTNode* left;
-    ASTNode* right;
-
-    explicit ASTNode(Token* token);
-    ASTNode(Token* token, ASTNode* left, ASTNode* right);
-};
-
-class AST {
-public:
-    ASTNode* root;
-};
 
 class Parser {
 public:
-    static AST* build_ast(TokenList* token_list);
+    [[nodiscard]] AST* build_ast() const;
 
-    static std::map<char, int> precedence;
+    TokenList* token_list;
 };
 
 

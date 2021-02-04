@@ -5,6 +5,7 @@
 #include <sstream>
 #include "Lexer.h"
 #include "Parser.h"
+#include "Executor.h"
 #include "util.h"
 
 
@@ -18,6 +19,9 @@ private:
     std::ifstream* source_file;
     Lexer* lexer;
     Parser* parser;
+    Executor* executor;
+
+    void deallocate_instruction_resources();
 };
 
 
