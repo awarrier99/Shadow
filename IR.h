@@ -2,6 +2,7 @@
 #define FYE_IR_H
 
 #include "Token.h"
+#include "Scope.h"
 
 
 class IRNode {
@@ -24,7 +25,12 @@ public:
     Data* execute() override;
 };
 
-class IdentNode: public IRNode {
+class Scoped {
+public:
+    Scope* scope;
+};
+
+class IdentNode: public IRNode, public Scoped {
 public:
     using IRNode::IRNode;
     ~IdentNode() override;
@@ -32,45 +38,57 @@ public:
     Data* execute() override;
 };
 
-class OpNode: public IRNode {
+class OpNode: virtual public IRNode {
 public:
     using IRNode::IRNode;
-    ~OpNode() override;
-
-    Data* execute() override;
-    virtual Data* compute(Data* a, Data* b) = 0;
 };
 
-class AddNode: public OpNode {
+class CalcNode: public OpNode {
 public:
     using OpNode::OpNode;
+
+    virtual Data* compute(Data* a, Data* b) = 0;
+    Data* execute() override;
+};
+
+class AddNode: public CalcNode {
+public:
+    using CalcNode::CalcNode;
     ~AddNode() override;
 
     Data* compute(Data* a, Data* b) override;
 };
 
-class SubNode: public OpNode {
+class SubNode: public CalcNode {
 public:
-    using OpNode::OpNode;
+    using CalcNode::CalcNode;
     ~SubNode() override;
 
     Data* compute(Data* a, Data* b) override;
 };
 
-class MulNode: public OpNode {
+class MulNode: public CalcNode {
 public:
-    using OpNode::OpNode;
+    using CalcNode::CalcNode;
     ~MulNode() override;
 
     Data* compute(Data* a, Data* b) override;
 };
 
-class DivNode: public OpNode {
+class DivNode: public CalcNode {
 public:
-    using OpNode::OpNode;
+    using CalcNode::CalcNode;
     ~DivNode() override;
 
     Data* compute(Data* a, Data* b) override;
+};
+
+class EqNode: public OpNode, public Scoped {
+public:
+    using OpNode::OpNode;
+    ~EqNode() override;
+
+    Data* execute() override;
 };
 
 class IR {

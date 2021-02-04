@@ -32,12 +32,6 @@ IdentNode::~IdentNode() {
     this->right = nullptr;
 }
 
-OpNode::~OpNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
 AddNode::~AddNode() {
     this->token = nullptr;
     this->left = nullptr;
@@ -62,15 +56,21 @@ DivNode::~DivNode() {
     this->right = nullptr;
 }
 
+EqNode::~EqNode() {
+    this->token = nullptr;
+    this->left = nullptr;
+    this->right = nullptr;
+}
+
 Data* NumberNode::execute() {
     return this->token->symbol->data;
 }
 
 Data* IdentNode::execute() {
-    return this->token->symbol->data;
+    return this->scope->retrieve(((Ident*) this->token->symbol->data)->value);
 }
 
-Data* OpNode::execute() {
+Data* CalcNode::execute() {
     return this->compute(this->left->execute(), this->right->execute());
 }
 
@@ -88,4 +88,10 @@ Data* MulNode::compute(Data* a, Data* b) {
 
 Data* DivNode::compute(Data* a, Data* b) {
     return new Integer(((Integer*) a)->value / ((Integer*) b)->value);
+}
+
+Data* EqNode::execute() {
+    Data* data = this->right->execute();
+    this->scope->assign(((Ident*) this->left->token->symbol->data)->value, data);
+    return data;
 }

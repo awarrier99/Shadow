@@ -4,6 +4,7 @@
 #include <iostream>
 #include "AST.h"
 #include "IR.h"
+#include "Scope.h"
 
 
 class Executor {
@@ -13,6 +14,10 @@ public:
 
     AST* ast;
     IR* ir;
+    Scope* global;
+
+private:
+    IRNode* build_ir_node(ASTNode* current);
 };
 
 #endif //FYE_EXECUTOR_H

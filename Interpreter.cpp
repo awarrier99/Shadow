@@ -1,11 +1,12 @@
 #include "Interpreter.h"
 
 
-Interpreter::Interpreter(std::ifstream* source_file) {
+Interpreter::Interpreter(std::ifstream* source_file) { // TODO: lexing, parsing, and executing errors/exceptions
     this->source_file = source_file;
     this->lexer = new Lexer();
     this->parser = new Parser();
     this->executor = new Executor();
+    this->executor->global = new Scope();
 }
 
 void Interpreter::pipeline() {
