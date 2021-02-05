@@ -3,10 +3,9 @@
 
 bool operator_has_higher_precedence(std::string* current, Token* op_top) {
     std::string* op_top_data = op_top->symbol->data;
-    if (*op_top_data == "(") return false;
+    if (*op_top_data == "(" || *op_top_data == "=") return false;
 
     std::map<std::string, int> precedence = {
-            {"=", 3},
             {"*", 2},
             {"/", 2},
             {"+", 1},
