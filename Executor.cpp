@@ -13,16 +13,16 @@ IRNode* Executor::build_ir_node(ASTNode* current) {
         node->scope = this->global;
         return node;
     } else if (current->token->type == OP) {
-        std::string op = ((Op*) current->token->symbol->data)->value;
-        if (op == "+") {
+        std::string* op = current->token->symbol->data;
+        if (*op == "+") {
             return new AddNode(current->token, left, right);
-        } else if (op == "-") {
+        } else if (*op == "-") {
             return new SubNode(current->token, left, right);
-        } else if (op == "*") {
+        } else if (*op == "*") {
             return new MulNode(current->token, left, right);
-        } else if (op == "/") {
+        } else if (*op == "/") {
             return new DivNode(current->token, left, right);
-        } else if (op == "=") {
+        } else if (*op == "=") {
             auto* node = new EqNode(current->token, left, right);
             node->scope = this->global;
             return node;
@@ -38,5 +38,5 @@ void Executor::build_ir() {
 
 void Executor::execute_ir() const {
     Data* data = this->ir->root->execute();
-    std::cout << "Data: " << ((Integer*) data)->value << std::endl;
+    std::cout << "Data: " << ((Number*) data)->value << std::endl;
 }

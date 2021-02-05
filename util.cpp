@@ -4,29 +4,26 @@
 void debug::print_token(Token* token) {
     switch(token->type) {
         case NUMBER:
-            std::cout << "Type: NUMBER" << " Line: " << token->line <<
-                      " Column: " << token->column << " Symbol: " << ((Integer*) token->symbol->data)->value << std::endl;
+            std::cout << "Type: NUMBER";
             break;
         case STRING:
-            std::cout << "Type: STRING" << " Line: " << token->line <<
-                      " Column: " << token->column << " Symbol: " << ((String*) token->symbol->data)->value << std::endl;
+            std::cout << "Type: STRING";
             break;
         case IDENT:
-            std::cout << "Type: IDENT" << " Line: " << token->line <<
-                      " Column: " << token->column << " Symbol: " << ((Ident*) token->symbol->data)->value << std::endl;
+            std::cout << "Type: IDENT";
             break;
         case OP:
-            std::cout << "Type: OP" << " Line: " << token->line <<
-                      " Column: " << token->column << " Symbol: " << ((Op*) token->symbol->data)->value << std::endl;
+            std::cout << "Type: OP";
             break;
         case SEP:
-            std::cout << "Type: SEP" << " Line: " << token->line <<
-                      " Column: " << token->column << " Symbol: " << ((Sep*) token->symbol->data)->value << std::endl;
+            std::cout << "Type: SEP";
             break;
         case INVALID:
             std::cout << "Type: INVALID" << " Line: " << token->line << " Column: " << token->column << std::endl;
-            break;
+            return;
     }
+    std::cout << " Line: " << token->line <<
+                 " Column: " << token->column << " Symbol: " << *token->symbol->data << std::endl;
 }
 
 void debug::print_token_list(TokenList* token_list) {
@@ -42,19 +39,7 @@ void print_ast_node(ASTNode* ast_node, int space) {
     print_ast_node(ast_node->right, space);
     std::cout << std::endl;
     for (int i = 5; i < space; i++) std::cout << ' ';
-    switch (ast_node->token->type) {
-        case NUMBER:
-            std::cout << ((Integer*) ast_node->token->symbol->data)->value << std::endl;
-            break;
-        case IDENT:
-            std::cout << ((Ident*) ast_node->token->symbol->data)->value << std::endl;
-            break;
-        case OP:
-            std::cout << ((Op*) ast_node->token->symbol->data)->value << std::endl;
-            break;
-        default:
-            break;
-    }
+    std::cout << *ast_node->token->symbol->data << std::endl;
     print_ast_node(ast_node->left, space);
 }
 

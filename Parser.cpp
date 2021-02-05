@@ -1,9 +1,9 @@
 #include "Parser.h"
 
 
-bool operator_has_higher_precedence(std::string current, Token* op_top) {
-    std::string op_top_ch = ((Op*) op_top->symbol->data)->value;
-    if (op_top_ch == "(") return false;
+bool operator_has_higher_precedence(std::string* current, Token* op_top) {
+    std::string* op_top_data = op_top->symbol->data;
+    if (*op_top_data == "(") return false;
 
     std::map<std::string, int> precedence = {
             {"=", 3},
@@ -13,7 +13,7 @@ bool operator_has_higher_precedence(std::string current, Token* op_top) {
             {"-", 1}
     };
 
-    return precedence[op_top_ch] >= precedence[current];
+    return precedence[*op_top_data] >= precedence[*current];
 }
 
 void build_expression(std::stack<ASTNode*>* expr_stack, std::stack<Token*>* op_stack) {
@@ -33,12 +33,12 @@ AST* Parser::build_ast() const {
 
     for (Token* token: *this->token_list) {
         debug::print_token(token);
+        std::string* data = token->symbol->data;
         if (token->type == SEP) {
-            char c = ((Sep*) token->symbol->data)->value;
-            if (c == '(') {
+            if (*data == "(") {
                 op_stack.push(token);
-            } else if (c == ')') {
-                while (!op_stack.empty() && ((Sep*) op_stack.top()->symbol->data)->value != '(') {
+            } else if (*data == ")") {
+                while (!op_stack.empty() && *op_stack.top()->symbol->data != "(") {
                     build_expression(&expr_stack, &op_stack);
                 }
 
@@ -49,8 +49,7 @@ AST* Parser::build_ast() const {
         } else if (token->type == NUMBER || token->type == IDENT) {
             expr_stack.push(new ASTNode(token));
         } else if (token->type == OP) {
-            std::string op = ((Op*) token->symbol->data)->value;
-            while (!op_stack.empty() && operator_has_higher_precedence(op, op_stack.top())) {
+            while (!op_stack.empty() && operator_has_higher_precedence(data, op_stack.top())) {
                 build_expression(&expr_stack, &op_stack);
             }
 

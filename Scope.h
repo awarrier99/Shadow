@@ -8,8 +8,8 @@
 
 class Scope {
 public:
-    void assign(std::string &var, Data* data);
-    Data* retrieve(std::string &var);
+    void assign(std::string* var, Data* data);
+    Data* retrieve(std::string* var);
 
 private:
     std::map<std::string, Data*> data_store;

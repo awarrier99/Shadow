@@ -8,7 +8,7 @@
 class IRNode {
 public:
     IRNode(Token* token, IRNode* left, IRNode* right);
-    virtual ~IRNode() = 0;
+    virtual ~IRNode() = default;
 
     virtual Data* execute() = 0;
 

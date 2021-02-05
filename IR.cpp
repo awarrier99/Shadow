@@ -18,8 +18,6 @@ IR::~IR() {
 
 IRNode::IRNode(Token* token, IRNode* left, IRNode* right): token(token), left(left), right(right) {}
 
-IRNode::~IRNode() = default;
-
 NumberNode::~NumberNode() {
     this->token = nullptr;
     this->left = nullptr;
@@ -63,11 +61,12 @@ EqNode::~EqNode() {
 }
 
 Data* NumberNode::execute() {
-    return this->token->symbol->data;
+    std::string* data = this->token->symbol->data;
+    return new Number(std::stold(*data));
 }
 
 Data* IdentNode::execute() {
-    return this->scope->retrieve(((Ident*) this->token->symbol->data)->value);
+    return this->scope->retrieve(this->token->symbol->data);
 }
 
 Data* CalcNode::execute() {
@@ -75,23 +74,23 @@ Data* CalcNode::execute() {
 }
 
 Data* AddNode::compute(Data* a, Data* b) {
-    return new Integer(((Integer*) a)->value + ((Integer*) b)->value);
+    return new Number(((Number*) a)->value + ((Number*) b)->value);
 }
 
 Data* SubNode::compute(Data* a, Data* b) {
-    return new Integer(((Integer*) a)->value - ((Integer*) b)->value);
+    return new Number(((Number*) a)->value - ((Number*) b)->value);
 }
 
 Data* MulNode::compute(Data* a, Data* b) {
-    return new Integer(((Integer*) a)->value * ((Integer*) b)->value);
+    return new Number(((Number*) a)->value * ((Number*) b)->value);
 }
 
 Data* DivNode::compute(Data* a, Data* b) {
-    return new Integer(((Integer*) a)->value / ((Integer*) b)->value);
+    return new Number(((Number*) a)->value / ((Number*) b)->value);
 }
 
 Data* EqNode::execute() {
     Data* data = this->right->execute();
-    this->scope->assign(((Ident*) this->left->token->symbol->data)->value, data);
+    this->scope->assign(this->left->token->symbol->data, data);
     return data;
 }

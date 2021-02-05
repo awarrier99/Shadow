@@ -1,4 +1,4 @@
 #include "Symbol.h"
 
 
-Symbol::Symbol(Data* data): data(data) {}
+Symbol::Symbol(std::string* data): data(data) {}

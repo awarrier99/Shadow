@@ -2,14 +2,13 @@
 #define FYE_SYMBOL_H
 
 #include <string>
-#include "Data.h"
 
 
 class Symbol {
 public:
-    explicit Symbol(Data* data);
+    explicit Symbol(std::string* data);
 
-    Data* data;
+    std::string* data;
 };
 
 
