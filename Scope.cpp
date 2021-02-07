@@ -1,9 +1,9 @@
 #include "Scope.h"
 
-void Scope::assign(std::string* var, Data* data) {
-    this->data_store[*var] = data;
+void Scope::assign(std::string &var, std::shared_ptr<Data> &data) {
+    this->data_store[var] = data;
 }
 
-Data * Scope::retrieve(std::string* var) {
-    return this->data_store[*var];
+std::shared_ptr<Data> Scope::retrieve(std::string &var) {
+    return this->data_store[var];
 }

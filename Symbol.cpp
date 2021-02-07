@@ -1,4 +1,4 @@
 #include "Symbol.h"
 
 
-Symbol::Symbol(std::string* data): data(data) {}
+Symbol::Symbol(std::unique_ptr<std::string> &data): data(std::move(data)) {}

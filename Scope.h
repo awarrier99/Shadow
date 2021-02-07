@@ -8,11 +8,11 @@
 
 class Scope {
 public:
-    void assign(std::string* var, Data* data);
-    Data* retrieve(std::string* var);
+    void assign(std::string &var, std::shared_ptr<Data> &data);
+    std::shared_ptr<Data> retrieve(std::string &var);
 
 private:
-    std::map<std::string, Data*> data_store;
+    std::map<std::string, std::shared_ptr<Data>> data_store;
 };
 
 #endif //FYE_SCOPE_H

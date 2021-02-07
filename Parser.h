@@ -10,9 +10,9 @@
 
 class Parser {
 public:
-    [[nodiscard]] AST* build_ast() const;
+    [[nodiscard]] std::unique_ptr<AST> build_ast() const;
 
-    TokenList* token_list;
+    std::unique_ptr<TokenList> token_list;
 };
 
 

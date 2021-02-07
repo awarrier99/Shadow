@@ -1,31 +1,27 @@
 #include "Executor.h"
 
-IRNode* Executor::build_ir_node(ASTNode* current) {
+std::unique_ptr<IRNode> Executor::build_ir_node(std::unique_ptr<ASTNode> &current) {
     if (current == nullptr) return nullptr;
 
-    IRNode* left = build_ir_node(current->left);
-    IRNode* right = build_ir_node(current->right);
+    auto left = build_ir_node(current->left);
+    auto right = build_ir_node(current->right);
 
     if (current->token->type == NUMBER) {
-        return new NumberNode(current->token, left, right);
+        return std::unique_ptr<IRNode>(new NumberNode(current->token, left, right));
     } else if (current->token->type == IDENT) {
-        auto* node = new IdentNode(current->token, left, right);
-        node->scope = this->global;
-        return node;
+        return std::unique_ptr<IRNode>(new IdentNode(current->token, left, right, this->global));
     } else if (current->token->type == OP) {
-        std::string* op = current->token->symbol->data;
-        if (*op == "+") {
-            return new AddNode(current->token, left, right);
-        } else if (*op == "-") {
-            return new SubNode(current->token, left, right);
-        } else if (*op == "*") {
-            return new MulNode(current->token, left, right);
-        } else if (*op == "/") {
-            return new DivNode(current->token, left, right);
-        } else if (*op == "=") {
-            auto* node = new EqNode(current->token, left, right);
-            node->scope = this->global;
-            return node;
+        auto op = *current->token->symbol->data;
+        if (op == "+") {
+            return std::unique_ptr<IRNode>(new AddNode(current->token, left, right));
+        } else if (op == "-") {
+            return std::unique_ptr<IRNode>(new SubNode(current->token, left, right));
+        } else if (op == "*") {
+            return std::unique_ptr<IRNode>(new MulNode(current->token, left, right));
+        } else if (op == "/") {
+            return std::unique_ptr<IRNode>(new DivNode(current->token, left, right));
+        } else if (op == "=") {
+            return std::unique_ptr<IRNode>(new EqNode(current->token, left, right, this->global));
         }
     }
 
@@ -33,10 +29,12 @@ IRNode* Executor::build_ir_node(ASTNode* current) {
 }
 
 void Executor::build_ir() {
-    this->ir = new IR(build_ir_node(this->ast->root));
+    auto root = build_ir_node(this->ast->root);
+    this->ir = std::make_unique<IR>(IR(root));
 }
 
 void Executor::execute_ir() const {
-    Data* data = this->ir->root->execute();
-    std::cout << "Data: " << ((Number*) data)->value << std::endl;
+    auto data = this->ir->root->execute();
+    auto &data_num = dynamic_cast<Number&>(*data);
+    std::cout << "Data: " << data_num.value << std::endl;
 }

@@ -7,35 +7,35 @@
 
 class IRNode {
 public:
-    IRNode(Token* token, IRNode* left, IRNode* right);
+    IRNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std::unique_ptr<IRNode> &right);
     virtual ~IRNode() = default;
 
-    virtual Data* execute() = 0;
+    virtual std::shared_ptr<Data> execute() = 0;
 
-    Token* token;
-    IRNode* left;
-    IRNode* right;
+    std::unique_ptr<Token> token;
+    std::unique_ptr<IRNode> left;
+    std::unique_ptr<IRNode> right;
 };
 
 class NumberNode: public IRNode {
 public:
     using IRNode::IRNode;
-    ~NumberNode() override;
 
-    Data* execute() override;
+    std::shared_ptr<Data> execute() override;
 };
 
 class Scoped {
 public:
-    Scope* scope;
+    explicit Scoped(std::shared_ptr<Scope> &scope);
+
+    std::shared_ptr<Scope> scope;
 };
 
 class IdentNode: public IRNode, public Scoped {
 public:
-    using IRNode::IRNode;
-    ~IdentNode() override;
+    IdentNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std::unique_ptr<IRNode> &right, std::shared_ptr<Scope> &scope);
 
-    Data* execute() override;
+    std::shared_ptr<Data> execute() override;
 };
 
 class OpNode: virtual public IRNode {
@@ -47,56 +47,50 @@ class CalcNode: public OpNode {
 public:
     using OpNode::OpNode;
 
-    virtual Data* compute(Data* a, Data* b) = 0;
-    Data* execute() override;
+    virtual std::shared_ptr<Data> compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) = 0;
+    std::shared_ptr<Data> execute() override;
 };
 
 class AddNode: public CalcNode {
 public:
     using CalcNode::CalcNode;
-    ~AddNode() override;
 
-    Data* compute(Data* a, Data* b) override;
+    std::shared_ptr<Data> compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) override;
 };
 
 class SubNode: public CalcNode {
 public:
     using CalcNode::CalcNode;
-    ~SubNode() override;
 
-    Data* compute(Data* a, Data* b) override;
+    std::shared_ptr<Data> compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) override;
 };
 
 class MulNode: public CalcNode {
 public:
     using CalcNode::CalcNode;
-    ~MulNode() override;
 
-    Data* compute(Data* a, Data* b) override;
+    std::shared_ptr<Data> compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) override;
 };
 
 class DivNode: public CalcNode {
 public:
     using CalcNode::CalcNode;
-    ~DivNode() override;
 
-    Data* compute(Data* a, Data* b) override;
+    std::shared_ptr<Data> compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) override;
 };
 
 class EqNode: public OpNode, public Scoped {
 public:
-    using OpNode::OpNode;
-    ~EqNode() override;
+    EqNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std::unique_ptr<IRNode> &right, std::shared_ptr<Scope> &scope);
 
-    Data* execute() override;
+    std::shared_ptr<Data> execute() override;
 };
 
 class IR {
 public:
-    explicit IR(IRNode* root);
-    ~IR();
+    explicit IR(std::unique_ptr<IRNode> &root);
 
-    IRNode* root;
+    std::unique_ptr<IRNode> root;
 };
 
 #endif //FYE_IR_H

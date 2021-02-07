@@ -1,27 +1,9 @@
 #include "AST.h"
 
 
-void deallocate_ast_node(ASTNode* node) {
-    if (node->left != nullptr) deallocate_ast_node(node->left);
-    if (node->right != nullptr) deallocate_ast_node(node->right);
+AST::AST(std::unique_ptr<ASTNode> &root): root(std::move(root)) {}
 
-    delete node;
-    node = nullptr;
-    std::cout << "AST node cleared" << std::endl;
-}
+ASTNode::ASTNode(std::unique_ptr<Token> &token): token(std::move(token)), left(nullptr), right(nullptr) {}
 
-AST::AST(ASTNode* root): root(root) {}
-
-AST::~AST() {
-    deallocate_ast_node(this->root);
-}
-
-ASTNode::ASTNode(Token* token): token(token), left(nullptr), right(nullptr) {}
-
-ASTNode::ASTNode(Token* token, ASTNode* left, ASTNode* right): token(token), left(left), right(right) {}
-
-ASTNode::~ASTNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
+ASTNode::ASTNode(std::unique_ptr<Token> &token, std::unique_ptr<ASTNode> &left, std::unique_ptr<ASTNode> &right):
+    token(std::move(token)), left(std::move(left)), right(std::move(right)) {}

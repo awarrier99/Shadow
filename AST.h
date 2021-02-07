@@ -6,21 +6,19 @@
 
 class ASTNode {
 public:
-    explicit ASTNode(Token* token);
-    ASTNode(Token* token, ASTNode* left, ASTNode* right);
-    ~ASTNode();
+    explicit ASTNode(std::unique_ptr<Token> &token);
+    ASTNode(std::unique_ptr<Token> &token, std::unique_ptr<ASTNode> &left, std::unique_ptr<ASTNode> &right);
 
-    Token* token;
-    ASTNode* left;
-    ASTNode* right;
+    std::unique_ptr<Token> token;
+    std::unique_ptr<ASTNode> left;
+    std::unique_ptr<ASTNode> right;
 };
 
 class AST {
 public:
-    explicit AST(ASTNode* root);
-    ~AST();
+    explicit AST(std::unique_ptr<ASTNode> &root);
 
-    ASTNode* root;
+    std::unique_ptr<ASTNode> root;
 };
 
 #endif //FYE_AST_H

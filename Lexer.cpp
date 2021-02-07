@@ -1,21 +1,23 @@
 #include "Lexer.h"
 
 
-TokenList* Lexer::lex_instruction() {
-    auto* token_list = new TokenList();
+std::unique_ptr<TokenList> Lexer::lex_instruction() {
+    auto token_list = std::make_unique<TokenList>(TokenList());
     this->offset = 0;
     while (true) {
-        Token* token = Lexer::extract_token();
-        token_list->push_back(token);
-        if (token->type == INVALID) break;
-        if (token->type == SEP && *token->symbol->data == ";") break;
+        auto token = Lexer::extract_token();
+        auto &type = token->type;
+        auto &data = *token->symbol->data;
+        token_list->push_back(std::move(token));
+        if (type == INVALID) break;
+        if (type == SEP && data == ";") break;
     }
     this->cursor += this->offset;
 
     return token_list;
 }
 
-Token* Lexer::extract_token() {
+std::unique_ptr<Token> Lexer::extract_token() {
     char ch = (*this->instruction)[this->offset];
     while (ch == ' ' || ch == '\n' || ch == '\t') {
         this->offset++;
@@ -24,7 +26,7 @@ Token* Lexer::extract_token() {
     int col = this->cursor + this->offset;
     this->offset++;
 
-    Token* token;
+    std::unique_ptr<Token> token;
     TokenType type = get_type(ch);
     switch(type) {
         case NUMBER:
@@ -43,7 +45,7 @@ Token* Lexer::extract_token() {
             token = Lexer::extract_sep(ch);
             break;
         default:
-            token = new Token(INVALID, nullptr);
+            token = std::make_unique<Token>(Token(INVALID, nullptr));
             break;
     }
     token->line = this->line_num;
@@ -52,8 +54,8 @@ Token* Lexer::extract_token() {
     return token;
 }
 
-Token* Lexer::extract_number(char first_ch) { // TODO: support floats
-    auto* data = new std::string(1, first_ch);
+std::unique_ptr<Token> Lexer::extract_number(char first_ch) {
+    auto data = std::make_unique<std::string>(std::string(1, first_ch));
     char ch = (*this->instruction)[this->offset];
     while (get_type(ch) == NUMBER) {
         *data += ch;
@@ -61,11 +63,11 @@ Token* Lexer::extract_number(char first_ch) { // TODO: support floats
         ch = (*this->instruction)[this->offset];
     }
 
-    return new Token(NUMBER, new Symbol(data));
+    return std::make_unique<Token>(Token(NUMBER, std::make_unique<Symbol>(Symbol(data))));
 }
 
-Token* Lexer::extract_string() {
-    auto* data = new std::string();
+std::unique_ptr<Token> Lexer::extract_string() {
+    auto data = std::make_unique<std::string>(std::string());
     char ch = (*this->instruction)[this->offset];
     while (get_type(ch) != STRING) { // TODO: support escape chars
         *data += ch;
@@ -74,11 +76,11 @@ Token* Lexer::extract_string() {
     }
     this->offset++; // so we don't recheck the end quote
 
-    return new Token(STRING, new Symbol(data));
+    return std::make_unique<Token>(Token(STRING, std::make_unique<Symbol>(Symbol(data))));
 }
 
-Token* Lexer::extract_ident(char first_ch) {
-    auto* data = new std::string(1, first_ch);
+std::unique_ptr<Token> Lexer::extract_ident(char first_ch) {
+    auto data = std::make_unique<std::string>(std::string(1, first_ch));
     char ch = (*this->instruction)[this->offset];
     while (get_type(ch) == IDENT) {
         *data += ch;
@@ -86,24 +88,25 @@ Token* Lexer::extract_ident(char first_ch) {
         ch = (*this->instruction)[this->offset];
     }
 
-    return new Token(IDENT, new Symbol(data));
+    return std::make_unique<Token>(Token(IDENT, std::make_unique<Symbol>(Symbol(data))));
 }
 
-Token* Lexer::extract_op(char first_ch) {
-    auto* data = new std::string(1, first_ch);
-    return new Token(OP, new Symbol(data));
+std::unique_ptr<Token> Lexer::extract_op(char first_ch) {
+    auto data = std::make_unique<std::string>(std::string(1, first_ch));
+
+    return std::make_unique<Token>(Token(OP, std::make_unique<Symbol>(Symbol(data))));
 }
 
-Token* Lexer::extract_sep(char first_ch) {
-    auto* data = new std::string(1, first_ch);
-    return new Token(SEP, new Symbol(data));
+std::unique_ptr<Token> Lexer::extract_sep(char first_ch) {
+    auto data = std::make_unique<std::string>(std::string(1, first_ch));
+    return std::make_unique<Token>(Token(SEP, std::make_unique<Symbol>(Symbol(data))));
 }
 
 TokenType get_type(char ch) {
 //    int extra_ident_codes[] = {}; TODO: allow for non alpha characters in identifier
     //%,*,+,-,/,<,=,>
     int op_codes[] = {37, 42, 43, 45, 47, 60, 61, 62}; // TODO: add more operators, allow for += and other combos
-    int code = (int) ch;
+    int code = (int) (unsigned char) ch;
     if (code == 46 || (code >= 48 && code <= 57)) return NUMBER;
     if (code == 34) return STRING;
     if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) return IDENT; // TODO: allow for non alpha characters in identifier

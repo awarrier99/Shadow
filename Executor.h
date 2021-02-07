@@ -12,12 +12,12 @@ public:
     void build_ir();
     void execute_ir() const;
 
-    AST* ast;
-    IR* ir;
-    Scope* global;
+    std::unique_ptr<AST> ast;
+    std::unique_ptr<IR> ir;
+    std::shared_ptr<Scope> global;
 
 private:
-    IRNode* build_ir_node(ASTNode* current);
+    std::unique_ptr<IRNode> build_ir_node(std::unique_ptr<ASTNode> &current);
 };
 
 #endif //FYE_EXECUTOR_H

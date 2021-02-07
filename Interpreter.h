@@ -11,17 +11,15 @@
 
 class Interpreter {
 public:
-    explicit Interpreter(std::ifstream* source_file);
+    explicit Interpreter(std::unique_ptr<std::ifstream> &source_file);
 
     void pipeline();
 
 private:
-    std::ifstream* source_file;
-    Lexer* lexer;
-    Parser* parser;
-    Executor* executor;
-
-    void deallocate_instruction_resources();
+    std::unique_ptr<std::ifstream> source_file;
+    std::unique_ptr<Lexer> lexer;
+    std::unique_ptr<Parser> parser;
+    std::unique_ptr<Executor> executor;
 };
 
 

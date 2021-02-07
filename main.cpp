@@ -7,14 +7,14 @@ int main(int argc, char** argv) {
     }
 
     char* source_filename = argv[1];
-    std::ifstream source_file(source_filename);
-    if (!source_file.is_open()) {
+    auto source_file = std::make_unique<std::ifstream>(std::ifstream(source_filename));
+    if (!source_file->is_open()) {
         std::cerr << "Error: File " << source_filename << " could not be opened" << std::endl;
         return 1;
     }
 
-    auto* interpreter = new Interpreter(&source_file);
-    interpreter->pipeline();
+    auto interpreter = Interpreter(source_file);
+    interpreter.pipeline();
 
     return 0;
 }

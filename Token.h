@@ -18,19 +18,15 @@ enum TokenType {
 
 class Token {
 public:
-    Token(TokenType type, Symbol* symbol);
-//    ~Token();
+    Token(TokenType type, std::unique_ptr<Symbol> symbol);
 
     TokenType type;
     int line;
     int column;
-    Symbol* symbol;
+    std::unique_ptr<Symbol> symbol;
 };
 
-class TokenList : public std::vector<Token*> {
-public:
-    ~TokenList();
-};
+class TokenList : public std::vector<std::unique_ptr<Token>> {};
 
 
 #endif //FYE_TOKEN_H

@@ -1,96 +1,57 @@
 #include "IR.h"
 
 
-void deallocate_ir_node(IRNode* node) {
-    if (node->left != nullptr) deallocate_ir_node(node->left);
-    if (node->right != nullptr) deallocate_ir_node(node->right);
+IR::IR(std::unique_ptr<IRNode> &root): root(std::move(root)) {}
 
-    delete node;
-    node = nullptr;
-    std::cout << "IR node cleared" << std::endl;
+IRNode::IRNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std::unique_ptr<IRNode> &right):
+    token(std::move(token)), left(std::move(left)), right(std::move(right)) {}
+
+Scoped::Scoped(std::shared_ptr<Scope> &scope): scope(scope) {}
+
+IdentNode::IdentNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std::unique_ptr<IRNode> &right,
+                     std::shared_ptr<Scope> &scope): IRNode(token, left, right), Scoped(scope) {}
+
+EqNode::EqNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std::unique_ptr<IRNode> &right,
+               std::shared_ptr<Scope> &scope): IRNode(token, left, right), OpNode(token, left, right), Scoped(scope) {}
+
+std::shared_ptr<Data> NumberNode::execute() {
+    return std::shared_ptr<Data>(new Number(std::stold(*this->token->symbol->data)));
 }
 
-IR::IR(IRNode* root): root(root) {}
-
-IR::~IR() {
-    deallocate_ir_node(this->root);
+std::shared_ptr<Data> IdentNode::execute() {
+    return this->scope->retrieve(*this->token->symbol->data);
 }
 
-IRNode::IRNode(Token* token, IRNode* left, IRNode* right): token(token), left(left), right(right) {}
-
-NumberNode::~NumberNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-IdentNode::~IdentNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-AddNode::~AddNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-SubNode::~SubNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-MulNode::~MulNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-DivNode::~DivNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-EqNode::~EqNode() {
-    this->token = nullptr;
-    this->left = nullptr;
-    this->right = nullptr;
-}
-
-Data* NumberNode::execute() {
-    std::string* data = this->token->symbol->data;
-    return new Number(std::stold(*data));
-}
-
-Data* IdentNode::execute() {
-    return this->scope->retrieve(this->token->symbol->data);
-}
-
-Data* CalcNode::execute() {
+std::shared_ptr<Data> CalcNode::execute() {
     return this->compute(this->left->execute(), this->right->execute());
 }
 
-Data* AddNode::compute(Data* a, Data* b) {
-    return new Number(((Number*) a)->value + ((Number*) b)->value);
+std::shared_ptr<Data> AddNode::compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) {
+    auto &a_num = dynamic_cast<Number&>(*a);
+    auto &b_num = dynamic_cast<Number&>(*b);
+    return std::shared_ptr<Data>(new Number(a_num.value + b_num.value));
 }
 
-Data* SubNode::compute(Data* a, Data* b) {
-    return new Number(((Number*) a)->value - ((Number*) b)->value);
+std::shared_ptr<Data> SubNode::compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) {
+    auto &a_num = dynamic_cast<Number&>(*a);
+    auto &b_num = dynamic_cast<Number&>(*b);
+    return std::unique_ptr<Data>(new Number(a_num.value - b_num.value));
 }
 
-Data* MulNode::compute(Data* a, Data* b) {
-    return new Number(((Number*) a)->value * ((Number*) b)->value);
+std::shared_ptr<Data> MulNode::compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) {
+    auto &a_num = dynamic_cast<Number&>(*a);
+    auto &b_num = dynamic_cast<Number&>(*b);
+    return std::shared_ptr<Data>(new Number(a_num.value * b_num.value));
 }
 
-Data* DivNode::compute(Data* a, Data* b) {
-    return new Number(((Number*) a)->value / ((Number*) b)->value);
+std::shared_ptr<Data> DivNode::compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) {
+    auto &a_num = dynamic_cast<Number&>(*a);
+    auto &b_num = dynamic_cast<Number&>(*b);
+    return std::shared_ptr<Data>(new Number(a_num.value / b_num.value));
 }
 
-Data* EqNode::execute() {
-    Data* data = this->right->execute();
-    this->scope->assign(this->left->token->symbol->data, data);
+std::shared_ptr<Data> EqNode::execute() {
+    auto data = this->right->execute();
+    this->scope->assign(*this->left->token->symbol->data, data);
     return data;
 }

@@ -1,7 +1,7 @@
 #include "util.h"
 
 
-void debug::print_token(Token* token) {
+void debug::print_token(std::unique_ptr<Token> &token) {
     switch(token->type) {
         case NUMBER:
             std::cout << "Type: NUMBER";
@@ -26,13 +26,13 @@ void debug::print_token(Token* token) {
                  " Column: " << token->column << " Symbol: " << *token->symbol->data << std::endl;
 }
 
-void debug::print_token_list(TokenList* token_list) {
-    for (Token* token: *token_list) {
+void debug::print_token_list(std::unique_ptr<TokenList> &token_list) {
+    for (auto &token: *token_list) {
         print_token(token);
     }
 }
 
-void print_ast_node(ASTNode* ast_node, int space) {
+void print_ast_node(std::unique_ptr<ASTNode> &ast_node, int space) {
     if (ast_node == nullptr) return;
 
     space += 5;
@@ -43,6 +43,6 @@ void print_ast_node(ASTNode* ast_node, int space) {
     print_ast_node(ast_node->left, space);
 }
 
-void debug::print_ast(AST* ast) {
+void debug::print_ast(std::unique_ptr<AST> &ast) {
     print_ast_node(ast->root, 0);
 }
