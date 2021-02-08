@@ -1,6 +1,12 @@
 #include "Lexer.h"
 
 
+Lexer::Lexer() {
+    this->line_num = 1;
+    this->cursor = 0;
+    this->offset = 0;
+}
+
 std::unique_ptr<TokenList> Lexer::lex_instruction() {
     auto token_list = std::make_unique<TokenList>(TokenList());
     this->offset = 0;

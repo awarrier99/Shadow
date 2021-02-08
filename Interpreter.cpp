@@ -1,38 +1,40 @@
 #include "Interpreter.h"
 
 
-Interpreter::Interpreter(std::unique_ptr<std::ifstream> &source_file) { // TODO: lexing, parsing, and executing errors/exceptions
-    this->source_file = std::move(source_file);
+Interpreter::Interpreter() {
     this->lexer = std::make_unique<Lexer>(Lexer());
     this->parser = std::make_unique<Parser>(Parser());
     this->executor = std::make_unique<Executor>(Executor());
     this->executor->global = std::make_shared<Scope>(Scope());
 }
 
-void Interpreter::pipeline() {
+Interpreter::Interpreter(std::unique_ptr<std::ifstream> &source_file): Interpreter() { // TODO: lexing, parsing, and executing errors/exceptions
+    this->source_file = std::move(source_file);
+}
+
+void Interpreter::pipeline(bool repl) {
     char ch;
     std::stringstream buffer;
-    this->lexer->line_num = 1;
-    this->lexer->cursor = 0;
-    this->lexer->offset = 0;
 
-    TokenType type = IDENT; // arbitrary, just so it's not invalid
-    while (type != INVALID) {
-        *this->source_file >> std::noskipws >> ch;
-        if (this->source_file->eof()) break;
-
+    if (repl) {
+        std::cout << "> ";
+    }
+    auto &source = repl ? std::cin : *this->source_file;
+    while (source >> std::noskipws >> ch) {
         if (ch == '\n') {
             this->lexer->line_num++;
             this->lexer->cursor = 0;
+            if (repl) {
+                std::cout << "> ";
+            }
         }
         else if (ch == ';') {
             buffer << ch;
             this->lexer->instruction = std::make_unique<std::string>(buffer.str());
             auto token_list = this->lexer->lex_instruction();
-            type = token_list->back()->type;
-            buffer.str(std::string());
+            if (token_list->back()->type == INVALID) break;
 
-//            debug::print_token_list(token_list);
+            buffer.str(std::string());
 
             this->parser->token_list = std::move(token_list);
             auto ast = this->parser->build_ast();

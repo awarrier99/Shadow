@@ -7,6 +7,8 @@
 
 class Lexer {
 public:
+    Lexer();
+
     std::unique_ptr<TokenList> lex_instruction();
 
     std::unique_ptr<std::string> instruction;

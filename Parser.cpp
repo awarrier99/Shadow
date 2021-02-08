@@ -31,7 +31,6 @@ std::unique_ptr<AST> Parser::build_ast() const {
     std::stack<std::unique_ptr<Token>> op_stack;
 
     for (auto &token: *this->token_list) {
-        debug::print_token(token);
         auto &data = *token->symbol->data;
         if (token->type == SEP) {
             if (data == "(") {
@@ -62,6 +61,5 @@ std::unique_ptr<AST> Parser::build_ast() const {
 
     auto ast = std::make_unique<AST>(AST(expr_stack.top()));
     expr_stack.pop();
-    debug::print_ast(ast);
     return ast;
 }

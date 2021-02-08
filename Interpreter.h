@@ -11,9 +11,10 @@
 
 class Interpreter {
 public:
+    Interpreter();
     explicit Interpreter(std::unique_ptr<std::ifstream> &source_file);
 
-    void pipeline();
+    void pipeline(bool repl = false);
 
 private:
     std::unique_ptr<std::ifstream> source_file;

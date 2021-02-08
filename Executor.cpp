@@ -36,5 +36,5 @@ void Executor::build_ir() {
 void Executor::execute_ir() const {
     auto data = this->ir->root->execute();
     auto &data_num = dynamic_cast<Number&>(*data);
-    std::cout << "Data: " << data_num.value << std::endl;
+    std::cout << data_num.value << std::endl;
 }
