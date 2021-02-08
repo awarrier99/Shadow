@@ -1,4 +1,4 @@
-#include "util.h"
+#include "debug.h"
 
 
 void debug::print_token(std::unique_ptr<Token> &token) {

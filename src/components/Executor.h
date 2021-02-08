@@ -1,10 +1,10 @@
-#ifndef FYE_EXECUTOR_H
-#define FYE_EXECUTOR_H
+#ifndef SHADOW_EXECUTOR_H
+#define SHADOW_EXECUTOR_H
 
 #include <iostream>
-#include "AST.h"
-#include "IR.h"
-#include "Scope.h"
+#include "../core/ast/AST.h"
+#include "../core/ir/IR.h"
+#include "../core/data/Scope.h"
 
 
 class Executor {
@@ -20,4 +20,4 @@ private:
     std::unique_ptr<IRNode> build_ir_node(std::unique_ptr<ASTNode> &current);
 };
 
-#endif //FYE_EXECUTOR_H
+#endif //SHADOW_EXECUTOR_H

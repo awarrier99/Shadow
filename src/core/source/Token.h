@@ -1,5 +1,5 @@
-#ifndef FYE_TOKEN_H
-#define FYE_TOKEN_H
+#ifndef SHADOW_TOKEN_H
+#define SHADOW_TOKEN_H
 
 #include <vector>
 #include <string>
@@ -29,4 +29,4 @@ public:
 class TokenList : public std::vector<std::unique_ptr<Token>> {};
 
 
-#endif //FYE_TOKEN_H
+#endif //SHADOW_TOKEN_H

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
-project(Fye)
+project(Shadow)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Fye main.cpp Lexer.cpp Lexer.h Token.cpp Token.h Parser.cpp Parser.h Interpreter.cpp Interpreter.h util.cpp util.h AST.cpp AST.h Executor.cpp Executor.h IR.cpp IR.h Symbol.cpp Symbol.h Data.cpp Data.h Scope.cpp Scope.h)
+add_executable(Shadow src/components/main.cpp src/components/Lexer.cpp src/components/Lexer.h src/core/source/Token.cpp src/core/source/Token.h src/components/Parser.cpp src/components/Parser.h src/components/Interpreter.cpp src/components/Interpreter.h src/util/debug/debug.cpp src/util/debug/debug.h src/core/ast/AST.cpp src/core/ast/AST.h src/components/Executor.cpp src/components/Executor.h src/core/ir/IR.cpp src/core/ir/IR.h src/core/source/Symbol.cpp src/core/source/Symbol.h src/core/data/Data.cpp src/core/data/Data.h src/core/data/Scope.cpp src/core/data/Scope.h src/core/ir/nodes/base.cpp src/core/ir/nodes/base.h src/core/ir/nodes/IdentNode.cpp src/core/ir/nodes/IdentNode.h src/core/ir/nodes/NumberNode.cpp src/core/ir/nodes/NumberNode.h src/core/ir/nodes/AddNode.cpp src/core/ir/nodes/AddNode.h src/core/ir/nodes/SubNode.cpp src/core/ir/nodes/SubNode.h src/core/ir/nodes/MulNode.cpp src/core/ir/nodes/MulNode.h src/core/ir/nodes/DivNode.cpp src/core/ir/nodes/DivNode.h src/core/ir/nodes/EqNode.cpp src/core/ir/nodes/EqNode.h)

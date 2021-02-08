@@ -1,5 +1,5 @@
-#ifndef FYE_SCOPE_H
-#define FYE_SCOPE_H
+#ifndef SHADOW_SCOPE_H
+#define SHADOW_SCOPE_H
 
 #include <string>
 #include <map>
@@ -15,4 +15,4 @@ private:
     std::map<std::string, std::shared_ptr<Data>> data_store;
 };
 
-#endif //FYE_SCOPE_H
+#endif //SHADOW_SCOPE_H

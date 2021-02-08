@@ -1,5 +1,5 @@
-#ifndef FYE_DATA_H
-#define FYE_DATA_H
+#ifndef SHADOW_DATA_H
+#define SHADOW_DATA_H
 
 #include <string>
 
@@ -23,4 +23,4 @@ public:
     std::string value;
 };
 
-#endif //FYE_DATA_H
+#endif //SHADOW_DATA_H

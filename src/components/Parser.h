@@ -1,11 +1,11 @@
-#ifndef FYE_PARSER_H
-#define FYE_PARSER_H
+#ifndef SHADOW_PARSER_H
+#define SHADOW_PARSER_H
 
 #include <string>
 #include <stack>
 #include <map>
-#include "AST.h"
-#include "util.h"
+#include "../core/ast/AST.h"
+#include "../util/debug/debug.h"
 
 
 class Parser {
@@ -16,4 +16,4 @@ public:
 };
 
 
-#endif //FYE_PARSER_H
+#endif //SHADOW_PARSER_H

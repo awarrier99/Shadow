@@ -1,10 +1,10 @@
-#ifndef FYE_UTIL_H
-#define FYE_UTIL_H
+#ifndef SHADOW_DEBUG_H
+#define SHADOW_DEBUG_H
 
 #include <iostream>
 #include <queue>
-#include "AST.h"
-#include "IR.h"
+#include "../../core/ast/AST.h"
+#include "../../core/ir/IR.h"
 
 
 namespace debug {
@@ -13,4 +13,4 @@ namespace debug {
     void print_ast(std::unique_ptr<AST> &ast);
 }
 
-#endif //FYE_UTIL_H
+#endif //SHADOW_DEBUG_H

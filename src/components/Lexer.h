@@ -1,8 +1,8 @@
-#ifndef FYE_LEXER_H
-#define FYE_LEXER_H
+#ifndef SHADOW_LEXER_H
+#define SHADOW_LEXER_H
 
 #include <string>
-#include "Token.h"
+#include "../core/source/Token.h"
 
 
 class Lexer {
@@ -28,4 +28,4 @@ private:
 TokenType get_type(char ch);
 
 
-#endif //FYE_LEXER_H
+#endif //SHADOW_LEXER_H

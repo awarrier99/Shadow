@@ -1,5 +1,5 @@
-#ifndef FYE_SYMBOL_H
-#define FYE_SYMBOL_H
+#ifndef SHADOW_SYMBOL_H
+#define SHADOW_SYMBOL_H
 
 #include <string>
 
@@ -13,4 +13,4 @@ public:
 
 
 
-#endif //FYE_SYMBOL_H
+#endif //SHADOW_SYMBOL_H

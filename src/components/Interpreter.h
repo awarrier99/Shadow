@@ -1,12 +1,12 @@
-#ifndef FYE_INTERPRETER_H
-#define FYE_INTERPRETER_H
+#ifndef SHADOW_INTERPRETER_H
+#define SHADOW_INTERPRETER_H
 
 #include <fstream>
 #include <sstream>
 #include "Lexer.h"
 #include "Parser.h"
 #include "Executor.h"
-#include "util.h"
+#include "../util/debug/debug.h"
 
 
 class Interpreter {
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //FYE_INTERPRETER_H
+#endif //SHADOW_INTERPRETER_H

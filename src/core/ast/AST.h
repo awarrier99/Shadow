@@ -1,7 +1,7 @@
-#ifndef FYE_AST_H
-#define FYE_AST_H
+#ifndef SHADOW_AST_H
+#define SHADOW_AST_H
 
-#include "Token.h"
+#include "../source/Token.h"
 
 
 class ASTNode {
@@ -21,4 +21,4 @@ public:
     std::unique_ptr<ASTNode> root;
 };
 
-#endif //FYE_AST_H
+#endif //SHADOW_AST_H
