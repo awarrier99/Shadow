@@ -44,7 +44,7 @@ std::unique_ptr<AST> Parser::build_ast() const {
             } else {
                 break;
             }
-        } else if (token->type == NUMBER || token->type == IDENT) {
+        } else if (token->type == NUMBER || token->type == STRING || token->type == IDENT) {
             expr_stack.push(std::make_unique<ASTNode>(ASTNode(token)));
         } else if (token->type == OP) {
             while (!op_stack.empty() && operator_has_higher_precedence(data, op_stack.top())) {

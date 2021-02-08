@@ -19,7 +19,7 @@ public:
 private:
     std::unique_ptr<Token> extract_token();
     std::unique_ptr<Token> extract_number(char first_ch);
-    std::unique_ptr<Token> extract_string();
+    std::unique_ptr<Token> extract_string(char first_ch);
     std::unique_ptr<Token> extract_ident(char first_ch);
     std::unique_ptr<Token> extract_op(char first_ch);
     std::unique_ptr<Token> extract_sep(char first_ch);

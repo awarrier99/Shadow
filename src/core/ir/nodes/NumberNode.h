@@ -11,5 +11,4 @@ public:
     std::shared_ptr<Data> execute() override;
 };
 
-
 #endif //SHADOW_NUMBERNODE_H

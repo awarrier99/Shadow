@@ -39,7 +39,7 @@ std::unique_ptr<Token> Lexer::extract_token() {
             token = Lexer::extract_number(ch);
             break;
         case STRING:
-            token = Lexer::extract_string();
+            token = Lexer::extract_string(ch);
             break;
         case IDENT:
             token = Lexer::extract_ident(ch);
@@ -72,10 +72,10 @@ std::unique_ptr<Token> Lexer::extract_number(char first_ch) {
     return std::make_unique<Token>(Token(NUMBER, std::make_unique<Symbol>(Symbol(data))));
 }
 
-std::unique_ptr<Token> Lexer::extract_string() {
+std::unique_ptr<Token> Lexer::extract_string(char first_ch) {
     auto data = std::make_unique<std::string>(std::string());
     char ch = (*this->instruction)[this->offset];
-    while (get_type(ch) != STRING) { // TODO: support escape chars
+    while (ch != first_ch) { // TODO: support escape chars
         *data += ch;
         this->offset++;
         ch = (*this->instruction)[this->offset];
@@ -114,7 +114,7 @@ TokenType get_type(char ch) {
     int op_codes[] = {37, 42, 43, 45, 47, 60, 61, 62}; // TODO: add more operators, allow for += and other combos
     int code = (int) (unsigned char) ch;
     if (code == 46 || (code >= 48 && code <= 57)) return NUMBER;
-    if (code == 34) return STRING;
+    if (code == 34 || code == 39) return STRING;
     if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) return IDENT; // TODO: allow for non alpha characters in identifier
     if (std::find(std::begin(op_codes), std::end(op_codes), code) != std::end(op_codes)) return OP;
     // (,),;

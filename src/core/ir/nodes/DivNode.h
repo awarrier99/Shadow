@@ -11,5 +11,4 @@ public:
     std::shared_ptr<Data> compute(std::shared_ptr<Data> a, std::shared_ptr<Data> b) override;
 };
 
-
 #endif //SHADOW_DIVNODE_H

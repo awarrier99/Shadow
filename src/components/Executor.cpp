@@ -8,6 +8,8 @@ std::unique_ptr<IRNode> Executor::build_ir_node(std::unique_ptr<ASTNode> &curren
 
     if (current->token->type == NUMBER) {
         return std::unique_ptr<IRNode>(new NumberNode(current->token, left, right));
+    } else if (current->token->type == STRING) {
+        return std::unique_ptr<IRNode>(new StringNode(current->token, left, right));
     } else if (current->token->type == IDENT) {
         return std::unique_ptr<IRNode>(new IdentNode(current->token, left, right, this->global));
     } else if (current->token->type == OP) {
@@ -22,6 +24,8 @@ std::unique_ptr<IRNode> Executor::build_ir_node(std::unique_ptr<ASTNode> &curren
             return std::unique_ptr<IRNode>(new DivNode(current->token, left, right));
         } else if (op == "=") {
             return std::unique_ptr<IRNode>(new EqNode(current->token, left, right, this->global));
+        } else if (op == "%") {
+            return std::unique_ptr<IRNode>(new ModNode(current->token, left, right));
         }
     }
 
@@ -35,6 +39,5 @@ void Executor::build_ir() {
 
 void Executor::execute_ir() const {
     auto data = this->ir->root->execute();
-    auto &data_num = dynamic_cast<Number&>(*data);
-    std::cout << data_num.value << std::endl;
+    if (data) std::cout << data->display() << std::endl;
 }

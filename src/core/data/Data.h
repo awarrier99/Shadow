@@ -2,25 +2,22 @@
 #define SHADOW_DATA_H
 
 #include <string>
+#include <sstream>
 
+
+enum Datatype {
+    NUM,
+    STR
+};
 
 class Data {
 public:
+    explicit Data(Datatype datatype);
     virtual ~Data() = default;
-};
 
-class Number: public Data {
-public:
-    explicit Number(long double value);
+    virtual std::string display() = 0;
 
-    long double value;
-};
-
-class String: public Data {
-public:
-    explicit String(std::string &value);
-
-    std::string value;
+    Datatype datatype;
 };
 
 #endif //SHADOW_DATA_H

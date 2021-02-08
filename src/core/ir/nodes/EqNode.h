@@ -11,5 +11,4 @@ public:
     std::shared_ptr<Data> execute() override;
 };
 
-
 #endif //SHADOW_EQNODE_H
