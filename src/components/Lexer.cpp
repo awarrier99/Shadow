@@ -1,123 +1,202 @@
 #include "Lexer.h"
 
 
-Lexer::Lexer() {
-    this->line_num = 1;
-    this->cursor = 0;
-    this->offset = 0;
+Lexer::Lexer(std::istream* source): source(source), line_num(1), cursor(-1) {
+    this->operators = {'%', '*', '+', '-', '/', '<', '=', '>'};
+    this->separators = {
+            {'(', TokenType::LPAREN},
+            {')', TokenType::RPAREN},
+            {';', TokenType::SEMI},
+            {',', TokenType::COMMA},
+            {'[', TokenType::LBRACKET},
+            {']', TokenType::RBRACKET},
+            {'{', TokenType::LBRACE},
+            {'}', TokenType::RBRACE}
+    };
+    this->read();
 }
 
-std::unique_ptr<TokenList> Lexer::lex_instruction() {
-    auto token_list = std::make_unique<TokenList>(TokenList());
-    this->offset = 0;
-    while (true) {
-        auto token = Lexer::extract_token();
-        auto &type = token->type;
-        auto &data = *token->symbol->data;
-        token_list->push_back(std::move(token));
-        if (type == INVALID) break;
-        if (type == SEP && data == ";") break;
+void Lexer::read() {
+    if (this->_next == '\0') *this->source >> std::noskipws >> this->ch;
+    else {
+        this->ch = this->_next;
+        this->_next = '\0';
     }
-    this->cursor += this->offset;
+    this->cursor++;
+}
 
-    return token_list;
+char Lexer::peek() {
+    *this->source >> std::noskipws >> this->_next;
+    return this->_next;
+}
+
+bool is_alpha(char ch) {
+    int code = (int) (unsigned char) ch;
+    return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+}
+
+bool is_digit(char ch) {
+    int code = (int) (unsigned char) ch;
+    return code >= 48 && code <= 57;
+}
+
+bool is_alpha_num(char ch) {
+    return is_alpha(ch) || is_digit(ch);
 }
 
 std::unique_ptr<Token> Lexer::extract_token() {
-    char ch = (*this->instruction)[this->offset];
-    while (ch == ' ' || ch == '\n' || ch == '\t') {
-        this->offset++;
-        ch = (*this->instruction)[this->offset];
+    std::cout << this->ch << std::endl;
+    if (!*this->source) {
+        std::unique_ptr<std::string> lexeme = nullptr;
+        return std::make_unique<Token>(Token(TokenType::FEOF, lexeme));
     }
-    int col = this->cursor + this->offset;
-    this->offset++;
 
+    while (this->ch == ' ' || this->ch == '\n' || this->ch == '\t') {
+        if (this->ch == '\n') this->line_num++;
+        this->read();
+    }
+
+    int col = this->cursor;
     std::unique_ptr<Token> token;
-    TokenType type = get_type(ch);
-    switch(type) {
-        case NUMBER:
-            token = Lexer::extract_number(ch);
-            break;
-        case STRING:
-            token = Lexer::extract_string(ch);
-            break;
-        case IDENT:
-            token = Lexer::extract_ident(ch);
-            break;
-        case OP:
-            token = Lexer::extract_op(ch);
-            break;
-        case SEP:
-            token = Lexer::extract_sep(ch);
-            break;
-        default:
-            token = std::make_unique<Token>(Token(INVALID, nullptr));
-            break;
-    }
-    token->line = this->line_num;
-    token->column = col;
 
+
+    if (this->ch == '.') {
+        token = this->extract_number(true);
+    } else if (is_digit(this->ch)) {
+        token = this->extract_number(false);
+    } else if (this->ch == '\'' || this->ch == '"') {
+        token = this->extract_string();
+    } else if (is_alpha(this->ch)) {
+        token = this->extract_ident();
+    } else if (operators.find(this->ch) != operators.end()) {
+        token = this->extract_op();
+        this->read();
+    } else if (separators.find(this->ch) != separators.end()) {
+        token = this->extract_sep();
+        this->read();
+    } else {
+        std::unique_ptr<std::string> lexeme = nullptr;
+        token = std::make_unique<Token>(Token(TokenType::INVALID, lexeme));
+    }
+
+    token->column = col;
+    token->line = this->line_num;
     return token;
 }
 
-std::unique_ptr<Token> Lexer::extract_number(char first_ch) {
-    auto data = std::make_unique<std::string>(std::string(1, first_ch));
-    char ch = (*this->instruction)[this->offset];
-    while (get_type(ch) == NUMBER) {
-        *data += ch;
-        this->offset++;
-        ch = (*this->instruction)[this->offset];
+std::unique_ptr<Token> Lexer::extract_number(bool period_flag) {
+    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+    this->read();
+    while ((!period_flag && this->ch == '.') || is_digit(this->ch)) {
+        if (this->ch == '.') period_flag = true;
+        *lexeme += this->ch;
+        this->read();
     }
 
-    return std::make_unique<Token>(Token(NUMBER, std::make_unique<Symbol>(Symbol(data))));
+    return std::make_unique<Token>(Token(TokenType::NUMBER, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_string(char first_ch) {
-    auto data = std::make_unique<std::string>(std::string());
-    char ch = (*this->instruction)[this->offset];
-    while (ch != first_ch) { // TODO: support escape chars
-        *data += ch;
-        this->offset++;
-        ch = (*this->instruction)[this->offset];
+std::unique_ptr<Token> Lexer::extract_string() {
+    auto lexeme = std::make_unique<std::string>(std::string());
+    char first_ch = this->ch;
+    this->read();
+    while (this->ch != first_ch) { // TODO: support escape chars
+        *lexeme += this->ch;
+        this->read();
     }
-    this->offset++; // so we don't recheck the end quote
+    this->read(); // so we don't recheck the end quote
 
-    return std::make_unique<Token>(Token(STRING, std::make_unique<Symbol>(Symbol(data))));
+    return std::make_unique<Token>(Token(TokenType::STRING, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_ident(char first_ch) {
-    auto data = std::make_unique<std::string>(std::string(1, first_ch));
-    char ch = (*this->instruction)[this->offset];
-    while (get_type(ch) == IDENT) {
-        *data += ch;
-        this->offset++;
-        ch = (*this->instruction)[this->offset];
+std::unique_ptr<Token> Lexer::extract_ident() {
+    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+    this->read();
+    while (is_alpha_num(this->ch)) {
+        *lexeme += ch;
+        this->read();
     }
 
-    return std::make_unique<Token>(Token(IDENT, std::make_unique<Symbol>(Symbol(data))));
+    std::map<std::string, const char*> keywords = {
+            {"const", TokenType::CONST},
+            {"def", TokenType::DEF}
+    };
+    auto it = keywords.find(*lexeme);
+    if (it != keywords.end()) return std::make_unique<Token>(Token(it->second, lexeme));
+
+    return std::make_unique<Token>(Token(TokenType::IDENT, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_op(char first_ch) {
-    auto data = std::make_unique<std::string>(std::string(1, first_ch));
+std::unique_ptr<Token> Lexer::extract_op() {
+    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
 
-    return std::make_unique<Token>(Token(OP, std::make_unique<Symbol>(Symbol(data))));
+    if (this->ch == '+') {
+        if (this->peek() == '=') {
+            this->read();
+            *lexeme += this->ch;
+            return std::make_unique<Token>(Token(TokenType::PLUSEQ, lexeme));
+        }
+        return std::make_unique<Token>(Token(TokenType::PLUS, lexeme));
+    }
+
+    if (this->ch == '-') {
+        if (this->peek() == '=') {
+            this->read();
+            *lexeme += this->ch;
+            return std::make_unique<Token>(Token(TokenType::MINUSEQ, lexeme));
+        }
+        return std::make_unique<Token>(Token(TokenType::MINUS, lexeme));
+    }
+
+    if (this->ch == '*') {
+        if (this->peek() == '=') {
+            this->read();
+            *lexeme += this->ch;
+            return std::make_unique<Token>(Token(TokenType::MULEQ, lexeme));
+        } else if (this->_next == '*') {
+            this->read();
+            *lexeme += this->ch;
+            if (this->peek() == '=') {
+                this->read();
+                *lexeme += this->ch;
+                return std::make_unique<Token>(Token(TokenType::EXPEQ, lexeme));
+            }
+            return std::make_unique<Token>(Token(TokenType::EXP, lexeme));
+        }
+        return std::make_unique<Token>(Token(TokenType::MUL, lexeme));
+    }
+
+    if (this->ch == '/') {
+        if (this->peek() == '=') {
+            this->read();
+            *lexeme += this->ch;
+            return std::make_unique<Token>(Token(TokenType::DIVEQ, lexeme));
+        }
+        return std::make_unique<Token>(Token(TokenType::DIV, lexeme));
+    }
+
+    if (this->ch == '%') {
+        if (this->peek() == '=') {
+            this->read();
+            *lexeme += this->ch;
+            return std::make_unique<Token>(Token(TokenType::MODEQ, lexeme));
+        }
+        return std::make_unique<Token>(Token(TokenType::MOD, lexeme));
+    }
+
+    if (this->ch == '=') {
+        if (this->peek() == '=') {
+            this->read();
+            *lexeme += this->ch;
+            return std::make_unique<Token>(Token(TokenType::EQEQ, lexeme));
+        }
+        return std::make_unique<Token>(Token(TokenType::EQ, lexeme));
+    }
+
+    return std::make_unique<Token>(Token(TokenType::INVALID, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_sep(char first_ch) {
-    auto data = std::make_unique<std::string>(std::string(1, first_ch));
-    return std::make_unique<Token>(Token(SEP, std::make_unique<Symbol>(Symbol(data))));
-}
-
-TokenType get_type(char ch) {
-//    int extra_ident_codes[] = {}; TODO: allow for non alpha characters in identifier
-    //%,*,+,-,/,<,=,>
-    int op_codes[] = {37, 42, 43, 45, 47, 60, 61, 62}; // TODO: add more operators, allow for += and other combos
-    int code = (int) (unsigned char) ch;
-    if (code == 46 || (code >= 48 && code <= 57)) return NUMBER;
-    if (code == 34 || code == 39) return STRING;
-    if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) return IDENT; // TODO: allow for non alpha characters in identifier
-    if (std::find(std::begin(op_codes), std::end(op_codes), code) != std::end(op_codes)) return OP;
-    // (,),;
-    if (code == 40 || code == 41 || code == 59) return SEP;
-    return INVALID;
+std::unique_ptr<Token> Lexer::extract_sep() {
+    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+    return std::make_unique<Token>(Token(this->separators[this->ch], lexeme));
 }

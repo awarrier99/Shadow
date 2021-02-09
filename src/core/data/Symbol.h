@@ -6,11 +6,11 @@
 
 class Symbol {
 public:
-    explicit Symbol(std::unique_ptr<std::string> &data);
+    Symbol(std::string &name, bool is_const);
 
-    std::unique_ptr<std::string> data;
+    std::string name;
+    const bool is_const;
 };
-
 
 
 #endif //SHADOW_SYMBOL_H

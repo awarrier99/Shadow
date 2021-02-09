@@ -12,7 +12,7 @@ public:
     std::shared_ptr<Data> retrieve(std::string &var);
 
 private:
-    std::map<std::string, std::shared_ptr<Data>> data_store;
+    std::map<std::string, std::shared_ptr<Data>> symbol_table;
 };
 
 #endif //SHADOW_SCOPE_H

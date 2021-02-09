@@ -6,6 +6,6 @@ EqNode::EqNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &left, std
 
 std::shared_ptr<Data> EqNode::execute() {
     auto data = this->right->execute();
-    this->scope->assign(*this->left->token->symbol->data, data);
+    this->scope->assign(*this->left->token->lexeme, data);
     return data;
 }

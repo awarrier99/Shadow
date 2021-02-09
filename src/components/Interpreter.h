@@ -12,14 +12,12 @@
 class Interpreter {
 public:
     Interpreter();
-    explicit Interpreter(std::unique_ptr<std::ifstream> &source_file);
+    explicit Interpreter(std::ifstream* source_file);
 
     void pipeline(bool repl = false);
 
 private:
-    std::unique_ptr<std::ifstream> source_file;
-    std::unique_ptr<Lexer> lexer;
-    std::unique_ptr<Parser> parser;
+    std::ifstream* source_file;
     std::unique_ptr<Executor> executor;
 };
 

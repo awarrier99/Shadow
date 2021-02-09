@@ -5,5 +5,5 @@ IdentNode::IdentNode(std::unique_ptr<Token> &token, std::unique_ptr<IRNode> &lef
                      std::shared_ptr<Scope> &scope): IRNode(token, left, right), Scoped(scope) {}
 
 std::shared_ptr<Data> IdentNode::execute() {
-    return this->scope->retrieve(*this->token->symbol->data);
+    return this->scope->retrieve(*this->token->lexeme);
 }

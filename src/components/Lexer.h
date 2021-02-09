@@ -2,30 +2,34 @@
 #define SHADOW_LEXER_H
 
 #include <string>
+#include <map>
+#include <set>
 #include "../core/source/Token.h"
 
 
 class Lexer {
 public:
-    Lexer();
+    explicit Lexer(std::istream* source);
 
-    std::unique_ptr<TokenList> lex_instruction();
-
-    std::unique_ptr<std::string> instruction;
-    int line_num;
-    int cursor;
-    int offset;
+    std::unique_ptr<Token> extract_token();
 
 private:
-    std::unique_ptr<Token> extract_token();
-    std::unique_ptr<Token> extract_number(char first_ch);
-    std::unique_ptr<Token> extract_string(char first_ch);
-    std::unique_ptr<Token> extract_ident(char first_ch);
-    std::unique_ptr<Token> extract_op(char first_ch);
-    std::unique_ptr<Token> extract_sep(char first_ch);
-};
+    void read();
+    char peek();
+    std::unique_ptr<Token> extract_number(bool period_flag);
+    std::unique_ptr<Token> extract_string();
+    std::unique_ptr<Token> extract_ident();
+    std::unique_ptr<Token> extract_op();
+    std::unique_ptr<Token> extract_sep();
 
-TokenType get_type(char ch);
+    std::istream* source;
+    char ch = '\0';
+    int line_num;
+    int cursor;
+    std::set<char> operators;
+    std::map<char, const char*> separators;
+    char _next = '\0';
+};
 
 
 #endif //SHADOW_LEXER_H

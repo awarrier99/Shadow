@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <queue>
+#include <map>
 #include "../../core/ast/AST.h"
 #include "../../core/ir/IR.h"
 

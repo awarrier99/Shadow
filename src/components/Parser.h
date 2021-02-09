@@ -3,16 +3,24 @@
 
 #include <string>
 #include <stack>
+#include <queue>
 #include <map>
+#include "Lexer.h"
 #include "../core/ast/AST.h"
 #include "../util/debug/debug.h"
 
 
 class Parser {
 public:
-    [[nodiscard]] std::unique_ptr<AST> build_ast() const;
+    explicit Parser(Lexer lexer);
 
-    std::unique_ptr<TokenList> token_list;
+    std::unique_ptr<AST> parse();
+
+private:
+    void consume(const char* type);
+
+    Lexer lexer;
+    std::unique_ptr<Token> token;
 };
 
 
