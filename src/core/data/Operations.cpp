@@ -1,6 +1,13 @@
 #include "Operations.h"
 
 
+std::map<const char*, std::function<std::shared_ptr<Data>(std::shared_ptr<Data>&, std::shared_ptr<Data>&)>> CalcOperations::operation_map = {
+        {TokenType::PLUS, CalcOperations::add},
+        {TokenType::MINUS, CalcOperations::sub},
+        {TokenType::MUL, CalcOperations::mul},
+        {TokenType::DIV, CalcOperations::div}
+};
+
 std::shared_ptr<Data> add_num_num(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
     auto &a_num = dynamic_cast<Number&>(*a);
     auto &b_num = dynamic_cast<Number&>(*b);
@@ -32,23 +39,22 @@ std::shared_ptr<Data> add_str_str(std::shared_ptr<Data> &a, std::shared_ptr<Data
     return std::shared_ptr<Data>(new String(concat));
 }
 
-std::shared_ptr<Data> Operations::add(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
-    std::map<std::pair<Datatype, Datatype>,
-            std::function<std::shared_ptr<Data>(std::shared_ptr<Data>&, std::shared_ptr<Data>&)>> operation_map = {
-            {{NUM, NUM}, add_num_num},
-            {{NUM, STR}, add_num_str},
-            {{STR, NUM}, add_str_num},
-            {{STR, STR}, add_str_str}
-    };
+std::map<std::pair<const char*, const char*>, std::function<std::shared_ptr<Data>(std::shared_ptr<Data>&, std::shared_ptr<Data>&)>> CalcOperations::add_map = {
+        {{Datatype::NUMBER, Datatype::NUMBER}, add_num_num},
+        {{Datatype::NUMBER, Datatype::STRING}, add_num_str},
+        {{Datatype::STRING, Datatype::NUMBER}, add_str_num},
+        {{Datatype::STRING, Datatype::STRING}, add_str_str}
+};
 
-    auto key = std::make_pair(a->datatype, b->datatype);
-    auto add_func = operation_map[key];
+std::shared_ptr<Data> CalcOperations::add(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
+    auto key = std::make_pair(a->type, b->type);
+    auto add_func = CalcOperations::add_map[key];
     if (!add_func) return nullptr;
     return add_func(a, b);
 }
 
-std::shared_ptr<Data> Operations::sub(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
-    if (a->datatype == NUM && b->datatype == NUM) {
+std::shared_ptr<Data> CalcOperations::sub(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
+    if (a->type == Datatype::NUMBER && b->type == Datatype::NUMBER) {
         auto &a_num = dynamic_cast<Number&>(*a);
         auto &b_num = dynamic_cast<Number&>(*b);
         return std::shared_ptr<Data>(new Number(a_num.value - b_num.value));
@@ -81,22 +87,21 @@ std::shared_ptr<Data> mul_str_num(std::shared_ptr<Data> &a, std::shared_ptr<Data
     return std::shared_ptr<Data>(new String(repeated));
 }
 
-std::shared_ptr<Data> Operations::mul(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
-    std::map<std::pair<Datatype, Datatype>,
-            std::function<std::shared_ptr<Data>(std::shared_ptr<Data>&, std::shared_ptr<Data>&)>> operation_map = {
-            {{NUM, NUM}, mul_num_num},
-            {{NUM, STR}, mul_num_str},
-            {{STR, NUM}, mul_str_num}
-    };
+std::map<std::pair<const char*, const char*>, std::function<std::shared_ptr<Data>(std::shared_ptr<Data>&, std::shared_ptr<Data>&)>> CalcOperations::mul_map = {
+        {{Datatype::NUMBER, Datatype::NUMBER}, mul_num_num},
+        {{Datatype::NUMBER, Datatype::STRING}, mul_num_str},
+        {{Datatype::STRING, Datatype::NUMBER}, mul_str_num}
+};
 
-    auto key = std::make_pair(a->datatype, b->datatype);
-    auto mul_func = operation_map[key];
+std::shared_ptr<Data> CalcOperations::mul(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
+    auto key = std::make_pair(a->type, b->type);
+    auto mul_func = CalcOperations::mul_map[key];
     if (!mul_func) return nullptr;
     return mul_func(a, b);
 }
 
-std::shared_ptr<Data> Operations::div(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
-    if (a->datatype == NUM && b->datatype == NUM) {
+std::shared_ptr<Data> CalcOperations::div(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
+    if (a->type == Datatype::NUMBER && b->type == Datatype::NUMBER) {
         auto &a_num = dynamic_cast<Number&>(*a);
         auto &b_num = dynamic_cast<Number&>(*b);
         return std::shared_ptr<Data>(new Number(a_num.value / b_num.value));
@@ -105,12 +110,35 @@ std::shared_ptr<Data> Operations::div(std::shared_ptr<Data> &a, std::shared_ptr<
     return nullptr;
 }
 
-std::shared_ptr<Data> Operations::mod(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
-    if (a->datatype == NUM && b->datatype == NUM) {
+std::shared_ptr<Data> CalcOperations::mod(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b) {
+    if (a->type == Datatype::NUMBER && b->type == Datatype::NUMBER) {
         auto &a_num = dynamic_cast<Number&>(*a);
         auto &b_num = dynamic_cast<Number&>(*b);
         return std::shared_ptr<Data>(new Number(std::fmod(a_num.value, b_num.value)));
     }
 
     return nullptr;
+}
+
+std::shared_ptr<Data> CalcOperations::operate(std::shared_ptr<Data> &a, std::shared_ptr<Data> &b, const char* type) {
+    auto op_func = CalcOperations::operation_map[type];
+    return op_func(a, b);
+}
+
+std::map<const char*, const char*> AssignOperations::operation_map = {
+        {TokenType::PLUSEQ, TokenType::PLUS},
+        {TokenType::MINUSEQ, TokenType::MINUS},
+        {TokenType::MULEQ, TokenType::MUL},
+        {TokenType::DIVEQ, TokenType::DIV},
+        {TokenType::EXPEQ, TokenType::EXP},
+        {TokenType::MODEQ, TokenType::MOD}
+};
+
+void AssignOperations::operate(std::shared_ptr<Symbol> &symbol, std::shared_ptr<Data> &b, const char* type, Memory* memory) {
+    if (type == TokenType::EQ) return memory->assign(symbol, b);
+
+    auto op_type = AssignOperations::operation_map[type];
+    auto data = memory->retrieve(symbol);
+    auto value = CalcOperations::operate(data, b, op_type);
+    memory->assign(symbol, value);
 }

@@ -11,16 +11,16 @@ class Lexer {
 public:
     explicit Lexer(std::istream* source);
 
-    std::unique_ptr<Token> extract_token();
+    std::shared_ptr<Token> extract_token();
 
 private:
     void read();
     char peek();
-    std::unique_ptr<Token> extract_number(bool period_flag);
-    std::unique_ptr<Token> extract_string();
-    std::unique_ptr<Token> extract_ident();
-    std::unique_ptr<Token> extract_op();
-    std::unique_ptr<Token> extract_sep();
+    std::shared_ptr<Token> extract_number(bool period_flag);
+    std::shared_ptr<Token> extract_string();
+    std::shared_ptr<Token> extract_ident();
+    std::shared_ptr<Token> extract_op();
+    std::shared_ptr<Token> extract_sep();
 
     std::istream* source;
     char ch = '\0';

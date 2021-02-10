@@ -49,7 +49,5 @@ public:
     std::unique_ptr<std::string> lexeme;
 };
 
-class TokenList : public std::vector<std::unique_ptr<Token>> {};
-
 
 #endif //SHADOW_TOKEN_H

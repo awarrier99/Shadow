@@ -1,2 +1,5 @@
-const x = 5;
-const y = 'str';
+def x = 5;
+x;
+def y;
+y = 3;
+y;

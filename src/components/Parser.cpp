@@ -1,97 +1,113 @@
 #include "Parser.h"
 
 
-Parser::Parser(Lexer lexer): lexer(lexer) {}
+Parser::Parser(Lexer &lexer): lexer(std::move(lexer)) {}
 
-bool operator_has_higher_precedence(std::string &current, std::unique_ptr<Token> &op_top) {
-    auto &op_top_lexeme = *op_top->lexeme;
-    if (op_top_lexeme == "(" || op_top_lexeme == "=") return false;
+bool operator_has_higher_precedence(const char* type, std::shared_ptr<Token> &op_top) {
+    if (op_top->type == TokenType::LPAREN) return false;
 
-    std::map<std::string, int> precedence = {
-            {"*", 2},
-            {"/", 2},
-            {"+", 1},
-            {"-", 1}
+    std::map<const char*, int> precedence = {
+            {TokenType::MUL, 3},
+            {TokenType::DIV, 3},
+            {TokenType::PLUS, 2},
+            {TokenType::MINUS, 2},
+            {TokenType::EQ, 1}
     };
 
-    return precedence[op_top_lexeme] >= precedence[current];
+    return precedence[op_top->type] >= precedence[type];
 }
 
-void build_expression(std::stack<std::unique_ptr<ASTNode>> &expr_stack, std::stack<std::unique_ptr<Token>> &op_stack) {
-    auto op_token = std::move(op_stack.top());
+void build_expression(std::stack<std::unique_ptr<ASTNode>> &expr_stack, std::stack<std::shared_ptr<Token>> &op_stack) {
+    auto op_token = op_stack.top();
     op_stack.pop();
     auto right_node = std::move(expr_stack.top());
     expr_stack.pop();
     auto left_node = std::move(expr_stack.top());
     expr_stack.pop();
 
-    expr_stack.push(std::make_unique<ASTNode>(ASTNode(op_token, left_node, right_node)));
+    auto nodes = std::make_unique<ASTNodeList>(ASTNodeList());
+    nodes->push_back(std::move(left_node));
+    nodes->push_back(std::move(right_node));
+
+    const char* type;
+    if (std::string(op_token->type).find("EQ") == std::string::npos) type = ASTNodeType::CALC;
+    else type = ASTNodeType::ASSIGN;
+
+    expr_stack.push(std::make_unique<ASTNode>(ASTNode(type, op_token, nodes)));
 }
 
 void Parser::consume(const char* type) {
+    debug::print_token(this->token);
     if (this->token->type == type) this->token = this->lexer.extract_token();
 }
 
-std::unique_ptr<AST> Parser::parse() {
-//    std::stack<std::unique_ptr<ASTNode>> expr_stack;
-//    std::stack<std::unique_ptr<Token>> op_stack;
+std::unique_ptr<ASTNode> Parser::parse_expression() {
+    std::stack<std::unique_ptr<ASTNode>> expr_stack;
+    std::stack<std::shared_ptr<Token>> op_stack;
 
     while (true) {
-        this->token = this->lexer.extract_token();
-        debug::print_token(this->token);
-        if (this->token->type == TokenType::INVALID || this->token->type == TokenType::FEOF) break;
+        auto &type = this->token->type;
+        if (type == TokenType::LPAREN) {
+            op_stack.push(this->token);
+        } else if (type == TokenType::RPAREN) {
+            while (!op_stack.empty() && *op_stack.top()->lexeme != "(") {
+                build_expression(expr_stack, op_stack);
+            }
 
+            op_stack.pop();
+        } else if (type == TokenType::NUMBER || type == TokenType::STRING || type == TokenType::IDENT) {
+            expr_stack.push(std::make_unique<ASTNode>(ASTNode(type, this->token))); // in these cases, token type is same string as node type
+        } else if (type == TokenType::SEMI) {
+            break;
+        } else {
+            while (!op_stack.empty() && operator_has_higher_precedence(type, op_stack.top())) {
+                build_expression(expr_stack, op_stack);
+            }
 
+            op_stack.push(this->token);
+        }
+        this->consume(type);
+    }
+    this->consume(TokenType::SEMI);
+
+    while (!op_stack.empty()) {
+        build_expression(expr_stack, op_stack);
     }
 
-//    for (int i = 0; i < token_list->size(); i++) {
-//        auto &token = (*token_list)[i];
-//        auto &lexeme = *token->lexeme;
-//        if (token->type == SEP) {
-//            if (lexeme == "(") {
-//                op_stack.push(std::move(token));
-//            } else if (lexeme == ")") {
-//                while (!op_stack.empty() && *op_stack.top()->lexeme != "(") {
-//                    build_expression(expr_stack, op_stack);
-//                }
-//
-//                op_stack.pop();
-//            } else {
-//                break;
-//            }
-//        } else if (token->type == NUMBER || token->type == STRING || token->type == IDENT) {
-//            expr_stack.push(std::make_unique<ASTNode>(ASTNode(token)));
-//        } else if (token->type == KEYWORD) {
-//            auto root = std::make_unique<ASTNode>(ASTNode(token));
-//            ASTNode* prev = root.get();
-//
-//            while ((*token_list)[i + 1]->type == KEYWORD) { // consume next tokens until ident
-//                prev->right = std::make_unique<ASTNode>((*token_list)[i + 1]);
-//                prev = prev->right.get();
-//                i++;
-//            }
-//            if ((*token_list)[i + 1]->type == IDENT) {
-//                prev->right = std::make_unique<ASTNode>((*token_list)[i + 1]);
-//                prev = nullptr;
-//                i++;
-//                expr_stack.push(std::move(root));
-//            }
-//        } else if (token->type == OP) {
-//            while (!op_stack.empty() && operator_has_higher_precedence(lexeme, op_stack.top())) {
-//                build_expression(expr_stack, op_stack);
-//            }
-//
-//            op_stack.push(std::move(token));
-//        }
-//    }
+    auto root = std::move(expr_stack.top());
+    expr_stack.pop();
+    return root;
+}
 
-//    while (!op_stack.empty()) {
-//        build_expression(expr_stack, op_stack);
-//    }
-//
-//    auto ast = std::make_unique<AST>(AST(expr_stack.top()));
-//    debug::print_ast(ast);
-//    expr_stack.pop();
-//    return ast;
+std::unique_ptr<ASTNode> Parser::parse_declaration() {
+    auto keyword_token = this->token;
+    this->consume(this->token->type);
+    auto nodes = std::make_unique<ASTNodeList>(ASTNodeList());
+    auto ident = this->token;
+    if (keyword_token->type == TokenType::CONST) {
+        nodes->push_back(this->parse_expression());
+        return std::make_unique<VarDecNode>(VarDecNode(keyword_token, nodes, ident));
+    }
+
+    if (this->token->type != TokenType::SEMI) nodes->push_back(this->parse_expression());
+    return std::make_unique<VarDecNode>(VarDecNode(keyword_token, nodes, ident));
+}
+
+std::unique_ptr<ASTNode> Parser::parse_statement() {
+    auto &type = this->token->type;
+    if (type == TokenType::NUMBER || type == TokenType::STRING || type == TokenType::IDENT) return this->parse_expression();
+    if (type == TokenType::CONST || type == TokenType::DEF) return this->parse_declaration();
     return nullptr;
+}
+
+void Parser::parse() {
+    auto executor = Executor();
+
+    this->token = this->lexer.extract_token();
+    while (true) {
+        if (this->token->type == TokenType::INVALID || this->token->type == TokenType::FEOF) break;
+
+        auto root = this->parse_statement();
+        if (root) executor.execute(root);
+    }
 }

@@ -1,45 +1,60 @@
 #include "Executor.h"
 
-std::unique_ptr<IRNode> Executor::build_ir_node(std::unique_ptr<ASTNode> &current) {
-//    if (current == nullptr) return nullptr;
-//
-//    auto left = build_ir_node(current->left);
-//    auto right = build_ir_node(current->right);
-//
-//    if (current->token->type == NUMBER) {
-//        return std::unique_ptr<IRNode>(new NumberNode(current->token, left, right));
-//    } else if (current->token->type == STRING) {
-//        return std::unique_ptr<IRNode>(new StringNode(current->token, left, right));
-//    } else if (current->token->type == IDENT) {
-//        return std::unique_ptr<IRNode>(new IdentNode(current->token, left, right, this->global));
-//    } else if (current->token->type == KEYWORD) {
-//
-//    } else if (current->token->type == OP) {
-//        auto op = *current->token->lexeme;
-//        if (op == "+") {
-//            return std::unique_ptr<IRNode>(new AddNode(current->token, left, right));
-//        } else if (op == "-") {
-//            return std::unique_ptr<IRNode>(new SubNode(current->token, left, right));
-//        } else if (op == "*") {
-//            return std::unique_ptr<IRNode>(new MulNode(current->token, left, right));
-//        } else if (op == "/") {
-//            return std::unique_ptr<IRNode>(new DivNode(current->token, left, right));
-//        } else if (op == "=") {
-//            return std::unique_ptr<IRNode>(new EqNode(current->token, left, right, this->global));
-//        } else if (op == "%") {
-//            return std::unique_ptr<IRNode>(new ModNode(current->token, left, right));
-//        }
-//    }
 
+Executor::Executor() {
+    this->scope = std::make_shared<Scope>(Scope());
+}
+
+std::map<const char*, func_ptr> Executor::visitor_map = {
+        {ASTNodeType::NUMBER, &Executor::visit_num},
+        {ASTNodeType::STRING,  &Executor::visit_str},
+        {ASTNodeType::IDENT, &Executor::visit_ident},
+        {ASTNodeType::VARDEC, (func_ptr) &Executor::visit_vardec},
+        {ASTNodeType::CALC, &Executor::visit_calc},
+        {ASTNodeType::ASSIGN, &Executor::visit_assign}
+};
+
+std::shared_ptr<Data> Executor::visit_num(std::unique_ptr<ASTNode> &node) {
+    return std::shared_ptr<Data>(new Number(std::stold(*node->token->lexeme)));
+}
+
+std::shared_ptr<Data> Executor::visit_str(std::unique_ptr<ASTNode> &node) {
+    return std::shared_ptr<Data>(new String(*node->token->lexeme));
+}
+
+std::shared_ptr<Data> Executor::visit_ident(std::unique_ptr<ASTNode> &node) {
+    auto symbol = this->scope->lookup(*node->token->lexeme);
+    return this->memory.retrieve(symbol);
+}
+
+std::shared_ptr<Data> Executor::visit_vardec(std::unique_ptr<VarDecNode> &node) {
+    bool is_const = node->token->type == TokenType::CONST;
+    auto symbol = std::make_shared<Symbol>(Symbol(*node->ident->lexeme, is_const));
+    this->scope->declare(*node->ident->lexeme, symbol);
+    if (!node->nodes->empty()) return this->visit((*node->nodes)[0]);
     return nullptr;
 }
 
-void Executor::build_ir() {
-    auto root = build_ir_node(this->ast->root);
-    this->ir = std::make_unique<IR>(IR(root));
+std::shared_ptr<Data> Executor::visit_calc(std::unique_ptr<ASTNode> &node) {
+    auto left = this->visit((*node->nodes)[0]);
+    auto right = this->visit((*node->nodes)[1]);
+    return CalcOperations::operate(left, right, node->token->type);
 }
 
-void Executor::execute_ir() const {
-    auto data = this->ir->root->execute();
+std::shared_ptr<Data> Executor::visit_assign(std::unique_ptr<ASTNode> &node) {
+    auto &left = (*node->nodes)[0];
+    auto right = this->visit((*node->nodes)[1]);
+    auto symbol = this->scope->lookup(*left->token->lexeme);
+    AssignOperations::operate(symbol, right, node->token->type, &this->memory);
+    return nullptr;
+}
+
+std::shared_ptr<Data> Executor::visit(std::unique_ptr<ASTNode> &node) {
+    auto visit_func = Executor::visitor_map[node->type];
+    return (this->*visit_func)(node);
+}
+
+void Executor::execute(std::unique_ptr<ASTNode> &root) {
+    auto data = this->visit(root);
     if (data) std::cout << data->display() << std::endl;
 }

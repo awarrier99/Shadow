@@ -1,9 +1,10 @@
 #include "AST.h"
 
 
-AST::AST(std::unique_ptr<ASTNode> &root): root(std::move(root)) {}
+ASTNode::ASTNode(const char* type, std::shared_ptr<Token> &token): type(type), token(token) {}
 
-ASTNode::ASTNode(std::unique_ptr<Token> &token): token(std::move(token)), left(nullptr), right(nullptr) {}
+ASTNode::ASTNode(const char* type, std::shared_ptr<Token> &token, std::unique_ptr<ASTNodeList> &nodes):
+    type(type), token(token), nodes(std::move(nodes)) {}
 
-ASTNode::ASTNode(std::unique_ptr<Token> &token, std::unique_ptr<ASTNode> &left, std::unique_ptr<ASTNode> &right):
-    token(std::move(token)), left(std::move(left)), right(std::move(right)) {}
+VarDecNode::VarDecNode(std::shared_ptr<Token> &token, std::unique_ptr<ASTNodeList> &nodes,
+                       std::shared_ptr<Token> &ident): ASTNode(ASTNodeType::VARDEC, token, nodes), ident(ident) {}

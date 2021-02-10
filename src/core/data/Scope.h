@@ -3,16 +3,16 @@
 
 #include <string>
 #include <map>
-#include "Operations.h"
+#include "Symbol.h"
 
 
 class Scope {
 public:
-    void assign(std::string &var, std::shared_ptr<Data> &data);
-    std::shared_ptr<Data> retrieve(std::string &var);
+    void declare(std::string &var, std::shared_ptr<Symbol> &symbol);
+    std::shared_ptr<Symbol> lookup(std::string &var);
 
 private:
-    std::map<std::string, std::shared_ptr<Data>> symbol_table;
+    std::map<std::string, std::shared_ptr<Symbol>> symbol_table;
 };
 
 #endif //SHADOW_SCOPE_H

@@ -11,14 +11,13 @@
 
 class Interpreter {
 public:
-    Interpreter();
+    Interpreter() = default;
     explicit Interpreter(std::ifstream* source_file);
 
     void pipeline(bool repl = false);
 
 private:
     std::ifstream* source_file;
-    std::unique_ptr<Executor> executor;
 };
 
 

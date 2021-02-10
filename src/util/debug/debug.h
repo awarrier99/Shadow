@@ -5,13 +5,11 @@
 #include <queue>
 #include <map>
 #include "../../core/ast/AST.h"
-#include "../../core/ir/IR.h"
 
 
 namespace debug {
-    void print_token(std::unique_ptr<Token> &token);
-    void print_token_list(std::unique_ptr<TokenList> &token_list);
-    void print_ast(std::unique_ptr<AST> &ast);
+    void print_token(std::shared_ptr<Token> &token);
+//    void print_ast(std::unique_ptr<ASTNode> &ast);
 }
 
 #endif //SHADOW_DEBUG_H

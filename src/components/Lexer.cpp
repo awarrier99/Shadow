@@ -44,11 +44,10 @@ bool is_alpha_num(char ch) {
     return is_alpha(ch) || is_digit(ch);
 }
 
-std::unique_ptr<Token> Lexer::extract_token() {
-    std::cout << this->ch << std::endl;
+std::shared_ptr<Token> Lexer::extract_token() {
     if (!*this->source) {
         std::unique_ptr<std::string> lexeme = nullptr;
-        return std::make_unique<Token>(Token(TokenType::FEOF, lexeme));
+        return std::make_shared<Token>(Token(TokenType::FEOF, lexeme));
     }
 
     while (this->ch == ' ' || this->ch == '\n' || this->ch == '\t') {
@@ -57,7 +56,7 @@ std::unique_ptr<Token> Lexer::extract_token() {
     }
 
     int col = this->cursor;
-    std::unique_ptr<Token> token;
+    std::shared_ptr<Token> token;
 
 
     if (this->ch == '.') {
@@ -76,7 +75,7 @@ std::unique_ptr<Token> Lexer::extract_token() {
         this->read();
     } else {
         std::unique_ptr<std::string> lexeme = nullptr;
-        token = std::make_unique<Token>(Token(TokenType::INVALID, lexeme));
+        token = std::make_shared<Token>(Token(TokenType::INVALID, lexeme));
     }
 
     token->column = col;
@@ -84,7 +83,7 @@ std::unique_ptr<Token> Lexer::extract_token() {
     return token;
 }
 
-std::unique_ptr<Token> Lexer::extract_number(bool period_flag) {
+std::shared_ptr<Token> Lexer::extract_number(bool period_flag) {
     auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
     this->read();
     while ((!period_flag && this->ch == '.') || is_digit(this->ch)) {
@@ -93,10 +92,10 @@ std::unique_ptr<Token> Lexer::extract_number(bool period_flag) {
         this->read();
     }
 
-    return std::make_unique<Token>(Token(TokenType::NUMBER, lexeme));
+    return std::make_shared<Token>(Token(TokenType::NUMBER, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_string() {
+std::shared_ptr<Token> Lexer::extract_string() {
     auto lexeme = std::make_unique<std::string>(std::string());
     char first_ch = this->ch;
     this->read();
@@ -106,10 +105,10 @@ std::unique_ptr<Token> Lexer::extract_string() {
     }
     this->read(); // so we don't recheck the end quote
 
-    return std::make_unique<Token>(Token(TokenType::STRING, lexeme));
+    return std::make_shared<Token>(Token(TokenType::STRING, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_ident() {
+std::shared_ptr<Token> Lexer::extract_ident() {
     auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
     this->read();
     while (is_alpha_num(this->ch)) {
@@ -122,81 +121,81 @@ std::unique_ptr<Token> Lexer::extract_ident() {
             {"def", TokenType::DEF}
     };
     auto it = keywords.find(*lexeme);
-    if (it != keywords.end()) return std::make_unique<Token>(Token(it->second, lexeme));
+    if (it != keywords.end()) return std::make_shared<Token>(Token(it->second, lexeme));
 
-    return std::make_unique<Token>(Token(TokenType::IDENT, lexeme));
+    return std::make_shared<Token>(Token(TokenType::IDENT, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_op() {
+std::shared_ptr<Token> Lexer::extract_op() {
     auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
 
     if (this->ch == '+') {
         if (this->peek() == '=') {
             this->read();
             *lexeme += this->ch;
-            return std::make_unique<Token>(Token(TokenType::PLUSEQ, lexeme));
+            return std::make_shared<Token>(Token(TokenType::PLUSEQ, lexeme));
         }
-        return std::make_unique<Token>(Token(TokenType::PLUS, lexeme));
+        return std::make_shared<Token>(Token(TokenType::PLUS, lexeme));
     }
 
     if (this->ch == '-') {
         if (this->peek() == '=') {
             this->read();
             *lexeme += this->ch;
-            return std::make_unique<Token>(Token(TokenType::MINUSEQ, lexeme));
+            return std::make_shared<Token>(Token(TokenType::MINUSEQ, lexeme));
         }
-        return std::make_unique<Token>(Token(TokenType::MINUS, lexeme));
+        return std::make_shared<Token>(Token(TokenType::MINUS, lexeme));
     }
 
     if (this->ch == '*') {
         if (this->peek() == '=') {
             this->read();
             *lexeme += this->ch;
-            return std::make_unique<Token>(Token(TokenType::MULEQ, lexeme));
+            return std::make_shared<Token>(Token(TokenType::MULEQ, lexeme));
         } else if (this->_next == '*') {
             this->read();
             *lexeme += this->ch;
             if (this->peek() == '=') {
                 this->read();
                 *lexeme += this->ch;
-                return std::make_unique<Token>(Token(TokenType::EXPEQ, lexeme));
+                return std::make_shared<Token>(Token(TokenType::EXPEQ, lexeme));
             }
-            return std::make_unique<Token>(Token(TokenType::EXP, lexeme));
+            return std::make_shared<Token>(Token(TokenType::EXP, lexeme));
         }
-        return std::make_unique<Token>(Token(TokenType::MUL, lexeme));
+        return std::make_shared<Token>(Token(TokenType::MUL, lexeme));
     }
 
     if (this->ch == '/') {
         if (this->peek() == '=') {
             this->read();
             *lexeme += this->ch;
-            return std::make_unique<Token>(Token(TokenType::DIVEQ, lexeme));
+            return std::make_shared<Token>(Token(TokenType::DIVEQ, lexeme));
         }
-        return std::make_unique<Token>(Token(TokenType::DIV, lexeme));
+        return std::make_shared<Token>(Token(TokenType::DIV, lexeme));
     }
 
     if (this->ch == '%') {
         if (this->peek() == '=') {
             this->read();
             *lexeme += this->ch;
-            return std::make_unique<Token>(Token(TokenType::MODEQ, lexeme));
+            return std::make_shared<Token>(Token(TokenType::MODEQ, lexeme));
         }
-        return std::make_unique<Token>(Token(TokenType::MOD, lexeme));
+        return std::make_shared<Token>(Token(TokenType::MOD, lexeme));
     }
 
     if (this->ch == '=') {
         if (this->peek() == '=') {
             this->read();
             *lexeme += this->ch;
-            return std::make_unique<Token>(Token(TokenType::EQEQ, lexeme));
+            return std::make_shared<Token>(Token(TokenType::EQEQ, lexeme));
         }
-        return std::make_unique<Token>(Token(TokenType::EQ, lexeme));
+        return std::make_shared<Token>(Token(TokenType::EQ, lexeme));
     }
 
-    return std::make_unique<Token>(Token(TokenType::INVALID, lexeme));
+    return std::make_shared<Token>(Token(TokenType::INVALID, lexeme));
 }
 
-std::unique_ptr<Token> Lexer::extract_sep() {
+std::shared_ptr<Token> Lexer::extract_sep() {
     auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
-    return std::make_unique<Token>(Token(this->separators[this->ch], lexeme));
+    return std::make_shared<Token>(Token(this->separators[this->ch], lexeme));
 }
