@@ -11,6 +11,7 @@ public:
     inline static const char* STRING = "STRING";
     inline static const char* IDENT = "IDENT";
     inline static const char* VARDEC = "VARDEC";
+    inline static const char* FUNCDEC = "FUNCDEC";
     inline static const char* CALC = "CALC";
     inline static const char* ASSIGN = "ASSIGN";
 };
@@ -33,6 +34,14 @@ public:
     VarDecNode(std::shared_ptr<Token> &token, std::unique_ptr<ASTNodeList> &nodes, std::shared_ptr<Token> &ident);
 
     std::shared_ptr<Token> ident;
+};
+
+class FuncDecNode: public ASTNode {
+public:
+    FuncDecNode(std::shared_ptr<Token> &token, std::unique_ptr<ASTNodeList> &nodes, std::shared_ptr<Token> &ident, std::unique_ptr<ASTNodeList> &params);
+
+    std::shared_ptr<Token> ident;
+    std::unique_ptr<ASTNodeList> params;
 };
 
 #endif //SHADOW_AST_H

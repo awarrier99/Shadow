@@ -8,3 +8,7 @@ ASTNode::ASTNode(const char* type, std::shared_ptr<Token> &token, std::unique_pt
 
 VarDecNode::VarDecNode(std::shared_ptr<Token> &token, std::unique_ptr<ASTNodeList> &nodes,
                        std::shared_ptr<Token> &ident): ASTNode(ASTNodeType::VARDEC, token, nodes), ident(ident) {}
+
+FuncDecNode::FuncDecNode(std::shared_ptr<Token> &token, std::unique_ptr<ASTNodeList> &nodes,
+                         std::shared_ptr<Token> &ident, std::unique_ptr<ASTNodeList> &params):
+                            ASTNode(ASTNodeType::FUNCDEC, token, nodes), ident(ident), params(std::move(params)) {}

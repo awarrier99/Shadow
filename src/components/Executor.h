@@ -25,6 +25,7 @@ private:
     std::shared_ptr<Data> visit_str(std::unique_ptr<ASTNode> &node);
     std::shared_ptr<Data> visit_ident(std::unique_ptr<ASTNode> &node);
     std::shared_ptr<Data> visit_vardec(std::unique_ptr<VarDecNode> &node);
+    std::shared_ptr<Data> visit_funcdec(std::unique_ptr<FuncDecNode> &node);
     std::shared_ptr<Data> visit_calc(std::unique_ptr<ASTNode> &node);
     std::shared_ptr<Data> visit_assign(std::unique_ptr<ASTNode> &node);
 

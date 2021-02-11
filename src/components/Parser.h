@@ -5,6 +5,7 @@
 #include <stack>
 #include <queue>
 #include <map>
+#include <set>
 #include "Lexer.h"
 #include "Executor.h"
 #include "../core/ast/AST.h"
@@ -19,8 +20,11 @@ public:
 
 private:
     void consume(const char* type);
-    std::unique_ptr<ASTNode> parse_expression();
-    std::unique_ptr<ASTNode> parse_declaration();
+    void reject(const char* type);
+    std::unique_ptr<ASTNode> parse_expression(std::shared_ptr<Token> tok = nullptr);
+    std::unique_ptr<ASTNode> parse_var_declaration();
+    std::unique_ptr<ASTNodeList> parse_parameter_list();
+    std::unique_ptr<ASTNode> parse_func_declaration();
     std::unique_ptr<ASTNode> parse_statement();
 
     Lexer lexer;

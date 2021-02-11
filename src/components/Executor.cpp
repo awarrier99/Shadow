@@ -24,15 +24,22 @@ std::shared_ptr<Data> Executor::visit_str(std::unique_ptr<ASTNode> &node) {
 
 std::shared_ptr<Data> Executor::visit_ident(std::unique_ptr<ASTNode> &node) {
     auto symbol = this->scope->lookup(*node->token->lexeme);
+    if (!symbol) throw std::runtime_error("Symbol " + *node->token->lexeme + " has not been declared yet");
     return this->memory.retrieve(symbol);
 }
 
 std::shared_ptr<Data> Executor::visit_vardec(std::unique_ptr<VarDecNode> &node) {
-    bool is_const = node->token->type == TokenType::CONST;
+    bool is_const;
+    if (node->token) is_const = node->token->type == TokenType::CONST;
+    else is_const = false;
     auto symbol = std::make_shared<Symbol>(Symbol(*node->ident->lexeme, is_const));
     this->scope->declare(*node->ident->lexeme, symbol);
-    if (!node->nodes->empty()) return this->visit((*node->nodes)[0]);
+    if (node->nodes && !node->nodes->empty()) return this->visit((*node->nodes)[0]);
     return nullptr;
+}
+
+std::shared_ptr<Data> Executor::visit_funcdec(std::unique_ptr<FuncDecNode> &node) {
+
 }
 
 std::shared_ptr<Data> Executor::visit_calc(std::unique_ptr<ASTNode> &node) {
@@ -45,6 +52,7 @@ std::shared_ptr<Data> Executor::visit_assign(std::unique_ptr<ASTNode> &node) {
     auto &left = (*node->nodes)[0];
     auto right = this->visit((*node->nodes)[1]);
     auto symbol = this->scope->lookup(*left->token->lexeme);
+    if (!symbol) throw std::runtime_error("Symbol " + *left->token->lexeme + " has not been declared yet");
     AssignOperations::operate(symbol, right, node->token->type, &this->memory);
     return nullptr;
 }

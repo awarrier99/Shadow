@@ -118,7 +118,8 @@ std::shared_ptr<Token> Lexer::extract_ident() {
 
     std::map<std::string, const char*> keywords = {
             {"const", TokenType::CONST},
-            {"def", TokenType::DEF}
+            {"def", TokenType::DEF},
+            {"func", TokenType::FUNC}
     };
     auto it = keywords.find(*lexeme);
     if (it != keywords.end()) return std::make_shared<Token>(Token(it->second, lexeme));

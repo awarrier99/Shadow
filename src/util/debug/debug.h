@@ -9,7 +9,7 @@
 
 namespace debug {
     void print_token(std::shared_ptr<Token> &token);
-//    void print_ast(std::unique_ptr<ASTNode> &ast);
+    void print_ast_node(std::unique_ptr<ASTNode> &node);
 }
 
 #endif //SHADOW_DEBUG_H

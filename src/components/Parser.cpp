@@ -37,14 +37,23 @@ void build_expression(std::stack<std::unique_ptr<ASTNode>> &expr_stack, std::sta
 }
 
 void Parser::consume(const char* type) {
-    debug::print_token(this->token);
     if (this->token->type == type) this->token = this->lexer.extract_token();
+    else throw std::invalid_argument("Unexpected token: " + std::string(this->token->type) + "; Expected: " + std::string(type));
 }
 
-std::unique_ptr<ASTNode> Parser::parse_expression() {
+void Parser::reject(const char* type) {
+    if (this->token->type == type) throw std::invalid_argument("Unexpected token: " + std::string(type));
+}
+
+std::unique_ptr<ASTNode> Parser::parse_expression(std::shared_ptr<Token> tok) {
     std::stack<std::unique_ptr<ASTNode>> expr_stack;
     std::stack<std::shared_ptr<Token>> op_stack;
 
+    if (tok) {
+        expr_stack.push(std::make_unique<ASTNode>(ASTNode(ASTNodeType::IDENT, tok)));
+    }
+
+    this->reject(TokenType::SEMI);
     while (true) {
         auto &type = this->token->type;
         if (type == TokenType::LPAREN) {
@@ -79,24 +88,63 @@ std::unique_ptr<ASTNode> Parser::parse_expression() {
     return root;
 }
 
-std::unique_ptr<ASTNode> Parser::parse_declaration() {
+std::unique_ptr<ASTNode> Parser::parse_var_declaration() {
     auto keyword_token = this->token;
     this->consume(this->token->type);
-    auto nodes = std::make_unique<ASTNodeList>(ASTNodeList());
     auto ident = this->token;
+    this->consume(TokenType::IDENT);
+    auto nodes = std::make_unique<ASTNodeList>(ASTNodeList());
     if (keyword_token->type == TokenType::CONST) {
-        nodes->push_back(this->parse_expression());
+        nodes->push_back(this->parse_expression(ident));
         return std::make_unique<VarDecNode>(VarDecNode(keyword_token, nodes, ident));
     }
 
-    if (this->token->type != TokenType::SEMI) nodes->push_back(this->parse_expression());
+    if (this->token->type != TokenType::SEMI) nodes->push_back(this->parse_expression(ident));
+    else this->consume(TokenType::SEMI);
     return std::make_unique<VarDecNode>(VarDecNode(keyword_token, nodes, ident));
+}
+
+std::unique_ptr<ASTNodeList> Parser::parse_parameter_list() {
+    std::unique_ptr<ASTNodeList> nodes = nullptr;
+    if (this->token->type == TokenType::RPAREN) return nodes;
+
+    nodes = std::make_unique<ASTNodeList>(ASTNodeList());
+    std::shared_ptr<Token> keyword_token = nullptr;
+    std::unique_ptr<ASTNodeList> param_nodes = nullptr;
+
+    while (true) {
+        nodes->push_back(std::make_unique<VarDecNode>(VarDecNode(keyword_token, param_nodes, this->token)));
+        this->consume(TokenType::IDENT);
+        if (this->token->type == TokenType::RPAREN) break;
+        this->consume(TokenType::COMMA);
+    }
+    return nodes;
+}
+
+std::unique_ptr<ASTNode> Parser::parse_func_declaration() {
+    auto tok = this->token;
+    this->consume(TokenType::FUNC);
+    auto ident = this->token;
+    this->consume(TokenType::IDENT);
+
+    this->consume(TokenType::LPAREN);
+    auto params = this->parse_parameter_list();
+    this->consume(TokenType::RPAREN);
+
+    this->consume(TokenType::LBRACE);
+    auto nodes = std::make_unique<ASTNodeList>(ASTNodeList());
+    while (this->token->type != TokenType::RBRACE) {
+        nodes->push_back(this->parse_statement());
+    }
+    this->consume(TokenType::RBRACE);
+    return std::make_unique<FuncDecNode>(FuncDecNode(tok, nodes, ident, params));
 }
 
 std::unique_ptr<ASTNode> Parser::parse_statement() {
     auto &type = this->token->type;
     if (type == TokenType::NUMBER || type == TokenType::STRING || type == TokenType::IDENT) return this->parse_expression();
-    if (type == TokenType::CONST || type == TokenType::DEF) return this->parse_declaration();
+    if (type == TokenType::CONST || type == TokenType::DEF) return this->parse_var_declaration();
+    if (type == TokenType::FUNC) return this->parse_func_declaration();
     return nullptr;
 }
 
@@ -108,6 +156,7 @@ void Parser::parse() {
         if (this->token->type == TokenType::INVALID || this->token->type == TokenType::FEOF) break;
 
         auto root = this->parse_statement();
+        debug::print_ast_node(root);
         if (root) executor.execute(root);
     }
 }

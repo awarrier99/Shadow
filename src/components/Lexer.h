@@ -1,6 +1,7 @@
 #ifndef SHADOW_LEXER_H
 #define SHADOW_LEXER_H
 
+#include <stdexcept>
 #include <string>
 #include <map>
 #include <set>

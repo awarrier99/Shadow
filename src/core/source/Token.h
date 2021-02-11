@@ -13,6 +13,7 @@ public:
     inline static const char* IDENT = "IDENT";
     inline static const char* CONST = "CONST";
     inline static const char* DEF = "DEF";
+    inline static const char* FUNC = "FUNC";
     inline static const char* PLUS = "PLUS";
     inline static const char* PLUSEQ = "PLUSEQ";
     inline static const char* MINUS = "MINUS";
