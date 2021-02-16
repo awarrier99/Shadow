@@ -40,15 +40,17 @@ public:
     inline static const char* FEOF = "FEOF";
 };
 
+typedef std::shared_ptr<std::string> string_ptr;
 class Token {
 public:
-    Token(const char* type, std::unique_ptr<std::string> &lexeme);
+    Token(const char* type, string_ptr &lexeme);
 
     const char* type;
     int line;
     int column;
-    std::unique_ptr<std::string> lexeme;
+    string_ptr lexeme;
 };
+typedef std::shared_ptr<Token> token_ptr;
 
 
 #endif //SHADOW_TOKEN_H

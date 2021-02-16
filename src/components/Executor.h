@@ -3,34 +3,35 @@
 
 #include <iostream>
 #include "../core/data/Scope.h"
-#include "../core/data/Memory.h"
+#include "../core/data/Namespace.h"
 #include "../core/ast/AST.h"
 #include "../core/data/Operations.h"
 
 
 class Executor;
-typedef std::shared_ptr<Data>(Executor::*func_ptr)(std::unique_ptr<ASTNode>&);
-
-
+typedef data_ptr(Executor::*execfunc_ptr)(astnode_ptr&);
 class Executor {
 public:
-    Executor();
-    void execute(std::unique_ptr<ASTNode> &root);
+    explicit Executor(bool repl);
+    void load_builtins();
+    void execute(astnode_ptr &root);
 
 private:
-    static std::map<const char*, func_ptr> visitor_map;
+    static std::map<const char*, execfunc_ptr> visitor_map;
 
-    std::shared_ptr<Data> visit(std::unique_ptr<ASTNode> &node);
-    std::shared_ptr<Data> visit_num(std::unique_ptr<ASTNode> &node);
-    std::shared_ptr<Data> visit_str(std::unique_ptr<ASTNode> &node);
-    std::shared_ptr<Data> visit_ident(std::unique_ptr<ASTNode> &node);
-    std::shared_ptr<Data> visit_vardec(std::unique_ptr<VarDecNode> &node);
-    std::shared_ptr<Data> visit_funcdec(std::unique_ptr<FuncDecNode> &node);
-    std::shared_ptr<Data> visit_calc(std::unique_ptr<ASTNode> &node);
-    std::shared_ptr<Data> visit_assign(std::unique_ptr<ASTNode> &node);
+    data_ptr visit(astnode_ptr &node);
+    data_ptr visit_num(astnode_ptr &node);
+    data_ptr visit_str(astnode_ptr &node);
+    data_ptr visit_ident(astnode_ptr &node);
+    data_ptr visit_vardec(std::unique_ptr<VarDecNode> &node);
+    data_ptr visit_funcdec(std::unique_ptr<FuncDecNode> &node);
+    data_ptr visit_funccall(astnode_ptr &node);
+    data_ptr visit_calc(astnode_ptr &node);
+    data_ptr visit_assign(astnode_ptr &node);
 
-    std::shared_ptr<Scope> scope;
-    Memory memory;
+    bool repl;
+    scope_ptr scope;
+    namespace_ptr _namespace;
 };
 
 #endif //SHADOW_EXECUTOR_H

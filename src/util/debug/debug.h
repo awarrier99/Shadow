@@ -8,8 +8,8 @@
 
 
 namespace debug {
-    void print_token(std::shared_ptr<Token> &token);
-    void print_ast_node(std::unique_ptr<ASTNode> &node);
+    void print_token(token_ptr &token);
+    void print_ast_node(astnode_ptr &node);
 }
 
 #endif //SHADOW_DEBUG_H

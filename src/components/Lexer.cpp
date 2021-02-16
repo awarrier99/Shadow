@@ -44,9 +44,9 @@ bool is_alpha_num(char ch) {
     return is_alpha(ch) || is_digit(ch);
 }
 
-std::shared_ptr<Token> Lexer::extract_token() {
+token_ptr Lexer::extract_token() {
     if (!*this->source) {
-        std::unique_ptr<std::string> lexeme = nullptr;
+        string_ptr lexeme = nullptr;
         return std::make_shared<Token>(Token(TokenType::FEOF, lexeme));
     }
 
@@ -56,7 +56,7 @@ std::shared_ptr<Token> Lexer::extract_token() {
     }
 
     int col = this->cursor;
-    std::shared_ptr<Token> token;
+    token_ptr token;
 
 
     if (this->ch == '.') {
@@ -74,7 +74,7 @@ std::shared_ptr<Token> Lexer::extract_token() {
         token = this->extract_sep();
         this->read();
     } else {
-        std::unique_ptr<std::string> lexeme = nullptr;
+        string_ptr lexeme = nullptr;
         token = std::make_shared<Token>(Token(TokenType::INVALID, lexeme));
     }
 
@@ -83,8 +83,8 @@ std::shared_ptr<Token> Lexer::extract_token() {
     return token;
 }
 
-std::shared_ptr<Token> Lexer::extract_number(bool period_flag) {
-    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+token_ptr Lexer::extract_number(bool period_flag) {
+    auto lexeme = std::make_shared<std::string>(std::string(1, this->ch));
     this->read();
     while ((!period_flag && this->ch == '.') || is_digit(this->ch)) {
         if (this->ch == '.') period_flag = true;
@@ -95,8 +95,8 @@ std::shared_ptr<Token> Lexer::extract_number(bool period_flag) {
     return std::make_shared<Token>(Token(TokenType::NUMBER, lexeme));
 }
 
-std::shared_ptr<Token> Lexer::extract_string() {
-    auto lexeme = std::make_unique<std::string>(std::string());
+token_ptr Lexer::extract_string() {
+    auto lexeme = std::make_shared<std::string>(std::string());
     char first_ch = this->ch;
     this->read();
     while (this->ch != first_ch) { // TODO: support escape chars
@@ -108,8 +108,8 @@ std::shared_ptr<Token> Lexer::extract_string() {
     return std::make_shared<Token>(Token(TokenType::STRING, lexeme));
 }
 
-std::shared_ptr<Token> Lexer::extract_ident() {
-    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+token_ptr Lexer::extract_ident() {
+    auto lexeme = std::make_shared<std::string>(std::string(1, this->ch));
     this->read();
     while (is_alpha_num(this->ch)) {
         *lexeme += ch;
@@ -127,8 +127,8 @@ std::shared_ptr<Token> Lexer::extract_ident() {
     return std::make_shared<Token>(Token(TokenType::IDENT, lexeme));
 }
 
-std::shared_ptr<Token> Lexer::extract_op() {
-    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+token_ptr Lexer::extract_op() {
+    auto lexeme = std::make_shared<std::string>(std::string(1, this->ch));
 
     if (this->ch == '+') {
         if (this->peek() == '=') {
@@ -196,7 +196,7 @@ std::shared_ptr<Token> Lexer::extract_op() {
     return std::make_shared<Token>(Token(TokenType::INVALID, lexeme));
 }
 
-std::shared_ptr<Token> Lexer::extract_sep() {
-    auto lexeme = std::make_unique<std::string>(std::string(1, this->ch));
+token_ptr Lexer::extract_sep() {
+    auto lexeme = std::make_shared<std::string>(std::string(1, this->ch));
     return std::make_shared<Token>(Token(this->separators[this->ch], lexeme));
 }

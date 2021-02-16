@@ -5,26 +5,27 @@
 #include <string>
 #include <map>
 #include <set>
-#include "../core/source/Token.h"
+#include "../core/data/Token.h"
 
 
 class Lexer {
 public:
     explicit Lexer(std::istream* source);
 
-    std::shared_ptr<Token> extract_token();
+    token_ptr extract_token();
+
+    char ch = '\0';
 
 private:
     void read();
     char peek();
-    std::shared_ptr<Token> extract_number(bool period_flag);
-    std::shared_ptr<Token> extract_string();
-    std::shared_ptr<Token> extract_ident();
-    std::shared_ptr<Token> extract_op();
-    std::shared_ptr<Token> extract_sep();
+    token_ptr extract_number(bool period_flag);
+    token_ptr extract_string();
+    token_ptr extract_ident();
+    token_ptr extract_op();
+    token_ptr extract_sep();
 
     std::istream* source;
-    char ch = '\0';
     int line_num;
     int cursor;
     std::set<char> operators;

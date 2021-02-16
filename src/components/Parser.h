@@ -16,19 +16,20 @@ class Parser {
 public:
     explicit Parser(Lexer &lexer);
 
-    void parse();
+    void parse(bool repl);
 
 private:
     void consume(const char* type);
     void reject(const char* type);
-    std::unique_ptr<ASTNode> parse_expression(std::shared_ptr<Token> tok = nullptr);
-    std::unique_ptr<ASTNode> parse_var_declaration();
-    std::unique_ptr<ASTNodeList> parse_parameter_list();
-    std::unique_ptr<ASTNode> parse_func_declaration();
-    std::unique_ptr<ASTNode> parse_statement();
+    astnodelist_ptr parse_func_arguments();
+    astnode_ptr parse_expression(token_ptr tok = nullptr, bool arguments = false);
+    astnode_ptr parse_var_declaration(const char* &end);
+    astnodelist_ptr parse_parameter_list();
+    astnode_ptr parse_func_declaration(const char* &end);
+    astnode_ptr parse_statement(const char* &end);
 
     Lexer lexer;
-    std::shared_ptr<Token> token;
+    token_ptr token;
 };
 
 

@@ -1,0 +1,11 @@
+def a = 2;
+def b = 3;
+
+func x(a, b) {
+    a = 4;
+    a;
+    b;
+}
+x(a, b);
+a;
+b;

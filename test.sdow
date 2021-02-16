@@ -1,3 +1,0 @@
-func x(a, b) {
-    const y = 5;
-}
