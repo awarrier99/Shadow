@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 #include <set>
-#include "../core/data/Token.h"
+#include "../core/token/Token.h"
 
 
 class Lexer {

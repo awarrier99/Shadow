@@ -6,7 +6,7 @@
 #include <cmath>
 #include "Data.h"
 #include "Namespace.h"
-#include "Token.h"
+#include "../token/Token.h"
 
 typedef std::function<data_ptr(data_ptr&, data_ptr&)> opfunc;
 

@@ -2,7 +2,7 @@
 #define SHADOW_SYMBOL_H
 
 #include <string>
-#include "Token.h"
+#include "../token/Token.h"
 #include "../ast/AST.h"
 
 

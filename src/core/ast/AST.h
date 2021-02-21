@@ -2,7 +2,7 @@
 #define SHADOW_AST_H
 
 #include <vector>
-#include "../data/Token.h"
+#include "../token/Token.h"
 
 
 class ASTNodeType {
